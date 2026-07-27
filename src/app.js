@@ -61,6 +61,7 @@ import adminActivityRoutes from "./routes/adminActivityRoutes.js";
 // of this missing import + mount, not because of anything in
 // adminSubAdminRoutes.js (despite the old log message claiming so).
 import adminPermissionRoutes from "./routes/adminPermissionRoutes.js";
+import industryTalkRoutes from "./routes/industryTalkRoutes.js";
 
 // ✅ auto-seed Permission table + prisma client for it
 import { prisma } from "./lib/prisma.js";
@@ -171,6 +172,7 @@ app.use("/api/admin", adminDirectoryRoutes);
 app.use("/api/admin", adminArticlesRoutes);
 app.use("/api/admin", adminUsersRoutes);
 app.use("/api/admin", adminAnalyticsRoutes);
+app.use("/api/industry-talks", industryTalkRoutes);
 
 // ✅ RBAC — sub-admin CRUD
 console.log("🔵 Mounting admin sub-admin (RBAC) routes...");

@@ -148,6 +148,9 @@ model User {
   connections                                             UserConnection[]         @relation("UserConnections")
   connectedTo                                             UserConnection[]         @relation("ConnectedUsers")
 
+  industryTalksCreated  IndustryTalk[] @relation("IndustryTalkCreatedBy")
+  industryTalksApproved IndustryTalk[] @relation("IndustryTalkApprovedBy")
+
   @@index([companyId])
 }
 
@@ -454,6 +457,134 @@ model CoverStory {
   Magazine         Magazine[]
 
   @@index([authorId])
+}
+
+model IndustryTalk {
+  id Int @id @default(autoincrement())
+
+  title String
+  slug  String @unique
+
+  interviewType String?
+  categoryId Int?
+  industryId Int?
+
+  status Event_status @default(DRAFT)
+
+  featured Boolean @default(false)
+  trending Boolean @default(false)
+  homepage Boolean @default(false)
+
+  bannerImage String?
+
+  videoType String?
+  videoUrl String?
+  uploadedVideo String?
+  thumbnailUrl String?
+  duration Int?
+
+  guestName String
+  designation String?
+  companyName String?
+  companyLogo String?
+  website String?
+  linkedinUrl String?
+  profileImage String?
+  shortBio String? @db.Text
+
+  introduction String? @db.Text
+
+  seoTitle String?
+  seoDescription String? @db.Text
+  seoKeywords Json?
+
+  relatedInterviews Json?
+
+  views Int @default(0)
+  shares Int @default(0)
+
+  createdById Int
+  approvedById Int?
+
+  publishedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy User @relation("IndustryTalkCreatedBy", fields: [createdById], references: [id])
+  approvedBy User? @relation("IndustryTalkApprovedBy", fields: [approvedById], references: [id])
+
+  questions IndustryTalkQuestion[]
+  quotes IndustryTalkQuote[]
+  gallery IndustryTalkGallery[]
+  documents IndustryTalkDocument[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([createdById])
+  @@index([approvedById])
+}
+
+model IndustryTalkQuestion {
+  id Int @id @default(autoincrement())
+
+  industryTalkId Int
+
+  question String
+  answer String @db.Text
+
+  videoTimestamp String?
+  highlightQuote String?
+
+  displayOrder Int @default(0)
+
+  industryTalk IndustryTalk @relation(fields: [industryTalkId], references: [id], onDelete: Cascade)
+
+  @@index([industryTalkId])
+}
+
+model IndustryTalkQuote {
+  id Int @id @default(autoincrement())
+
+  industryTalkId Int
+
+  quote String
+
+  displayOrder Int @default(0)
+
+  industryTalk IndustryTalk @relation(fields: [industryTalkId], references: [id], onDelete: Cascade)
+
+  @@index([industryTalkId])
+}
+
+model IndustryTalkGallery {
+  id Int @id @default(autoincrement())
+
+  industryTalkId Int
+
+  imageUrl String
+  caption String?
+
+  displayOrder Int @default(0)
+
+  industryTalk IndustryTalk @relation(fields: [industryTalkId], references: [id], onDelete: Cascade)
+
+  @@index([industryTalkId])
+}
+
+model IndustryTalkDocument {
+  id Int @id @default(autoincrement())
+
+  industryTalkId Int
+
+  title String
+  fileUrl String
+  fileSize String?
+
+  displayOrder Int @default(0)
+
+  industryTalk IndustryTalk @relation(fields: [industryTalkId], references: [id], onDelete: Cascade)
+
+  @@index([industryTalkId])
 }
 
 model Event {
