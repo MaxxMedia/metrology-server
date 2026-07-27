@@ -2,6 +2,13 @@ import * as connectionService from "../services/connectionService.js";
 
 export const sendConnectionRequest = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({
+        success: false,
+        message: "Only candidates can send connection requests.",
+      });
+    }
+
     const senderId = req.user.id;
     const { receiverId, message } = req.body;
 
@@ -26,6 +33,10 @@ export const sendConnectionRequest = async (req, res) => {
 
 export const acceptConnectionRequest = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
+
     const receiverId = req.user.id;
     const { requestId } = req.params;
 
@@ -40,15 +51,16 @@ export const acceptConnectionRequest = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const rejectConnectionRequest = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
+
     const receiverId = req.user.id;
     const { requestId } = req.params;
 
@@ -63,15 +75,16 @@ export const rejectConnectionRequest = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const cancelConnectionRequest = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
+
     const senderId = req.user.id;
     const { requestId } = req.params;
 
@@ -86,91 +99,81 @@ export const cancelConnectionRequest = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getMyConnections = async (req, res) => {
   try {
-    const userId = req.user.id;
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
 
+    const userId = req.user.id;
     const connections = await connectionService.getMyConnections(userId);
 
-    return res.status(200).json({
-      success: true,
-      data: connections,
-    });
+    return res.status(200).json({ success: true, data: connections });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const removeConnection = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
+
     const userId = req.user.id;
     const connectionId = Number(req.params.userId);
 
-    await connectionService.removeConnection({
-      userId,
-      connectionId,
-    });
+    await connectionService.removeConnection({ userId, connectionId });
 
     return res.status(200).json({
       success: true,
       message: "Connection removed successfully.",
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getReceivedRequests = async (req, res) => {
   try {
-    const userId = req.user.id;
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
 
+    const userId = req.user.id;
     const requests = await connectionService.getReceivedRequests(userId);
 
-    return res.status(200).json({
-      success: true,
-      data: requests,
-    });
+    return res.status(200).json({ success: true, data: requests });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getSentRequests = async (req, res) => {
   try {
-    const userId = req.user.id;
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
 
+    const userId = req.user.id;
     const requests = await connectionService.getSentRequests(userId);
 
-    return res.status(200).json({
-      success: true,
-      data: requests,
-    });
+    return res.status(200).json({ success: true, data: requests });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getConnectionStatus = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
+
     const currentUserId = req.user.id;
     const targetUserId = Number(req.params.userId);
 
@@ -179,28 +182,25 @@ export const getConnectionStatus = async (req, res) => {
       targetUserId,
     });
 
-    return res.status(200).json({
-      success: true,
-      data: status,
-    });
+    return res.status(200).json({ success: true, data: status });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getMutualConnections = async (req, res) => {
   try {
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
+
     const currentUserId = req.user.id;
     const targetUserId = Number(req.params.userId);
 
-    const mutualConnections =
-      await connectionService.getMutualConnections({
-        currentUserId,
-        targetUserId,
-      });
+    const mutualConnections = await connectionService.getMutualConnections({
+      currentUserId,
+      targetUserId,
+    });
 
     return res.status(200).json({
       success: true,
@@ -208,19 +208,18 @@ export const getMutualConnections = async (req, res) => {
       data: mutualConnections,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getSuggestedConnections = async (req, res) => {
   try {
-    const userId = req.user.id;
+    if (req.user.role !== "candidate") {
+      return res.status(403).json({ success: false, message: "Not allowed." });
+    }
 
-    const suggestions =
-      await connectionService.getSuggestedConnections(userId);
+    const userId = req.user.id;
+    const suggestions = await connectionService.getSuggestedConnections(userId);
 
     return res.status(200).json({
       success: true,
@@ -228,9 +227,6 @@ export const getSuggestedConnections = async (req, res) => {
       data: suggestions,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

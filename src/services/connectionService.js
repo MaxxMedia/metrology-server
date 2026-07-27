@@ -195,15 +195,13 @@ export const cancelConnectionRequest = async ({
 
 export const getMyConnections = async (userId) => {
   const connections = await prisma.userConnection.findMany({
-    where: {
-      userId,
-    },
+    where: { userId },
     include: {
       connection: {
         select: {
           id: true,
           fullName: true,
-          profileImage: true,
+          avatarUrl: true,      // was: profileImage: true
           headline: true,
           location: true,
           username: true,
@@ -211,9 +209,7 @@ export const getMyConnections = async (userId) => {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   return connections.map((item) => item.connection);
@@ -260,16 +256,13 @@ export const removeConnection = async ({
 
 export const getReceivedRequests = async (userId) => {
   return await prisma.connectionRequest.findMany({
-    where: {
-      receiverId: userId,
-      status: "PENDING",
-    },
+    where: { receiverId: userId, status: "PENDING" },
     include: {
       sender: {
         select: {
           id: true,
           fullName: true,
-          profileImage: true,
+          avatarUrl: true,      // was: profileImage: true
           headline: true,
           location: true,
           username: true,
@@ -277,24 +270,19 @@ export const getReceivedRequests = async (userId) => {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 };
 
 export const getSentRequests = async (userId) => {
   return await prisma.connectionRequest.findMany({
-    where: {
-      senderId: userId,
-      status: "PENDING",
-    },
+    where: { senderId: userId, status: "PENDING" },
     include: {
       receiver: {
         select: {
           id: true,
           fullName: true,
-          profileImage: true,
+          avatarUrl: true,      // was: profileImage: true
           headline: true,
           location: true,
           username: true,
@@ -302,9 +290,7 @@ export const getSentRequests = async (userId) => {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 };
 
@@ -383,15 +369,13 @@ export const getMutualConnections = async ({
   });
 
   const targetConnections = await prisma.userConnection.findMany({
-    where: {
-      userId: targetUserId,
-    },
+    where: { userId: targetUserId },
     include: {
       connection: {
         select: {
           id: true,
           fullName: true,
-          profileImage: true,
+          avatarUrl: true,      // was: profileImage: true
           headline: true,
           location: true,
         },
@@ -409,36 +393,21 @@ export const getMutualConnections = async ({
 };
 
 export const getSuggestedConnections = async (userId) => {
-  // Existing connections
   const connections = await prisma.userConnection.findMany({
-    where: {
-      userId,
-    },
-    select: {
-      connectionId: true,
-    },
+    where: { userId },
+    select: { connectionId: true },
   });
 
   const connectedIds = connections.map((c) => c.connectionId);
 
-  // Pending requests
   const pendingRequests = await prisma.connectionRequest.findMany({
     where: {
       OR: [
-        {
-          senderId: userId,
-          status: "PENDING",
-        },
-        {
-          receiverId: userId,
-          status: "PENDING",
-        },
+        { senderId: userId, status: "PENDING" },
+        { receiverId: userId, status: "PENDING" },
       ],
     },
-    select: {
-      senderId: true,
-      receiverId: true,
-    },
+    select: { senderId: true, receiverId: true },
   });
 
   const excludedIds = new Set([
@@ -449,14 +418,13 @@ export const getSuggestedConnections = async (userId) => {
 
   const suggestions = await prisma.user.findMany({
     where: {
-      id: {
-        notIn: [...excludedIds],
-      },
+      id: { notIn: [...excludedIds] },
+      role: "candidate",          // NEW — only suggest candidates
     },
     select: {
       id: true,
       fullName: true,
-      profileImage: true,
+      avatarUrl: true,
       headline: true,
       location: true,
       username: true,
