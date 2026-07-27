@@ -163,6 +163,68 @@ model User {
   grantedPermissions  UserPermission[] @relation("PermissionGrantedBy")
 
   @@index([companyId])
+
+  // Incoming Requests
+  receivedConnectionRequests ConnectionRequest[] @relation("ConnectionRequestReceiver")
+
+  // Sent Requests
+  sentConnectionRequests ConnectionRequest[] @relation("ConnectionRequestSender")
+
+  // My Connections
+  connections UserConnection[] @relation("UserConnections")
+
+  // Connected To Me
+  connectedTo UserConnection[] @relation("ConnectedUsers")
+}
+
+model ConnectionRequest {
+  id Int @id @default(autoincrement())
+
+  senderId Int
+
+  receiverId Int
+
+  status ConnectionRequestStatus @default(PENDING)
+
+  message String?
+
+  acceptedAt DateTime?
+
+  respondedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  sender   User @relation("ConnectionRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiver User @relation("ConnectionRequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+
+  @@index([senderId])
+
+  @@index([receiverId])
+}
+
+model UserConnection {
+  id Int @id @default(autoincrement())
+
+  userId Int
+
+  connectionId Int
+
+  createdAt DateTime @default(now())
+
+  user       User @relation("UserConnections", fields: [userId], references: [id], onDelete: Cascade)
+
+  connection User @relation("ConnectedUsers", fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, connectionId])
+
+  @@index([userId])
+
+  @@index([connectionId])
 }
 
 model CandidateSkill {
@@ -496,69 +558,25 @@ model Event {
   bannerUrl                     String?
   startDate                     DateTime
   endDate                       DateTime
-  description                   String              @db.Text   // Full Description
-  shortDescription              String?              @db.Text  // NEW — 250-char summary
-  eventType                     String?              // NEW
-  timings                       String?              // NEW — e.g. "10:00 AM – 06:00 PM"
-  city                          String?              // NEW
-  country                       String?              // NEW
-  highlights                    Json?                // NEW — string[]
-
-  // Organizer info — NEW
-  organizationName              String?
-  organizationWebsite           String?
-  contactPerson                 String?
-  organizerEmail                String?
-  organizerMobile               String?
-  organizerPhone                String?
-  address                       String?              @db.Text
-
-  // Additional — NEW
-  brochureUrl                   String?
-  otherImages                   Json?                // string[]
-  videoGallery                  Json?
-  
-  facebookUrl                   String?
-  twitterUrl                    String?
-  linkedinUrl                   String?
-  youtubeUrl                    String?
-
+  description                   String              @db.Text
   websiteUrl                    String?
   registerUrl                   String?
   location                      String?
   calendarUrl                   String?
   status                        Event_status        @default(DRAFT)
-  rejectionReason               String?              // NEW
   views                         Int                 @default(0)
   createdById                   Int
   approvedById                  Int?
-  
   createdAt                     DateTime            @default(now())
   updatedAt                     DateTime
   publishedAt                   DateTime?
   User_Event_approvedByIdToUser User?               @relation("Event_approvedByIdToUser", fields: [approvedById], references: [id])
   User_Event_createdByIdToUser  User                @relation("Event_createdByIdToUser", fields: [createdById], references: [id])
   EventRegistration             EventRegistration[]
-  EventEnquiry                  EventEnquiry[]   
 
   @@index([approvedById])
   @@index([createdById])
-  @@index([status])
 }
-model EventEnquiry {
-  id        Int      @id @default(autoincrement())
-  eventId   Int
-  name      String
-  email     String
-  mobile    String?
-  message   String   @db.Text
-  status    String   @default("NEW")
-  createdAt DateTime @default(now())
-  Event     Event    @relation(fields: [eventId], references: [id])
-
-  @@index([eventId])
-}
-
 
 model EventRegistration {
   id                  Int      @id @default(autoincrement())
@@ -597,173 +615,33 @@ model Industry {
 }
 
 model Job {
-  id                     Int       @id @default(autoincrement())
-
-  // ===========================
-  // Basic Information
-  // ===========================
-  title                  String
-  slug                   String    @unique
-  description            String    @db.Text
-  responsibilities       String?   @db.Text
-  requirements           String?   @db.Text
-  aboutCompany           String?   @db.Text
-
-  // ===========================
-  // Company
-  // ===========================
-  companyId              Int?
-  companyName            String?
-  companyWebsite         String?
-  companySize            String?
-  industry               String?
-  department             String?
-  reportsTo              String?
-
-  Company                Company?  @relation(fields: [companyId], references: [id])
-
-  // ===========================
-  // Employment
-  // ===========================
-  employmentType         String
-  workplaceType          String?
-  jobFunction            String?
-  seniorityLevel         String?
-  employmentMode         String?
-  shift                  String?
-
-  // ===========================
-  // Experience & Education
-  // ===========================
-  experience             String?
-  minExperience          Int?
-  maxExperience          Int?
-  education              String?
-  noticePeriod           String?
-
-  // ===========================
-  // Location
-  // ===========================
-  location               String
-  country                String?
-  state                  String?
-  city                   String?
-  zipCode                String?
-
-  isRemote               Boolean   @default(false)
-  isHybrid               Boolean   @default(false)
-
-  // ===========================
-  // Salary
-  // ===========================
-  salaryMin              Int?
-  salaryMax              Int?
-  salaryCurrency         String?   @default("INR")
-  salaryPeriod           String?
-  showSalary             Boolean   @default(true)
-
-  // ===========================
-  // Hiring
-  // ===========================
-  openings               Int       @default(1)
-  applicationDeadline    DateTime?
-  expectedJoiningDate    DateTime?
-  publishedAt            DateTime?
-  expiresAt              DateTime?
-
-  // ===========================
-  // Skills & Benefits
-  // ===========================
-  skills                 Json?
-  preferredSkills        Json?
-  benefits               Json?
-  languages              Json?
-
-  // ===========================
-  // Recruiter
-  // ===========================
-  recruiterName          String?
-  recruiterEmail         String?
-  recruiterPhone         String?
-
-  // ===========================
-  // External Application
-  // ===========================
-  applyUrl               String?
-  linkedinUrl            String?
-  isExternal             Boolean   @default(false)
-
-  // ===========================
-  // Extras
-  // ===========================
-  referralBonus          Int?
-  travelRequired         Boolean   @default(false)
-  relocationSupport      Boolean   @default(false)
-  visaSponsorship        Boolean   @default(false)
-
-  // ===========================
-  // Application Settings
-  // ===========================
-  requireResume          Boolean   @default(true)
-  requireCoverLetter     Boolean   @default(false)
-  requirePortfolio       Boolean   @default(false)
-  requireLinkedin        Boolean   @default(false)
-  allowEasyApply         Boolean   @default(true)
-
-  // ===========================
-  // SEO
-  // ===========================
-  metaTitle              String?
-  metaDescription        String?
-  keywords               Json?
-
-  // ===========================
-  // Status
-  // ===========================
-  isActive               Boolean   @default(true)
-  isFeatured             Boolean   @default(false)
-  featuredAt             DateTime?
-
-  // ===========================
-  // Analytics
-  // ===========================
-  views                  Int       @default(0)
-  applicationsCount      Int       @default(0)
-  savedCount             Int       @default(0)
-  shareCount             Int       @default(0)
-  clickCount             Int       @default(0)
-
-  // ===========================
-  // Ownership
-  // ===========================
-  postedById             Int
-  createdAt              DateTime  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  
-  User                   User              @relation(fields: [postedById], references: [id])
-
-  JobApplication         JobApplication[]
-  SavedJob               SavedJob[]
+  id             Int              @id @default(autoincrement())
+  title          String
+  slug           String           @unique
+  description    String           @db.Text
+  employmentType String
+  experience     String?
+  salaryRange    String?
+  location       String
+  isRemote       Boolean          @default(false) 
+  isActive       Boolean          @default(true)
+  views          Int              @default(0)
+  isFeatured     Boolean          @default(false)   
+  featuredAt     DateTime?                           
+  companyId      Int?
+  postedById     Int
+  createdAt      DateTime         @default(now())
+  applyUrl       String?
+  isExternal     Boolean          @default(false)
+  linkedinUrl    String?
+  companyName    String?
+  Company        Company?         @relation(fields: [companyId], references: [id])
+  User           User             @relation(fields: [postedById], references: [id])
+  JobApplication JobApplication[]
+  SavedJob       SavedJob[]
 
   @@index([companyId])
   @@index([postedById])
-
-  @@index([employmentType])
-  @@index([workplaceType])
-  @@index([location])
-  @@index([city])
-  @@index([state])
-  @@index([country])
-
-  @@index([industry])
-  @@index([department])
-  @@index([seniorityLevel])
-
-  @@index([isActive])
-  @@index([isFeatured])
-
-  @@index([applicationDeadline])
-  @@index([publishedAt])
 }
 
 model SavedJob {
@@ -1104,7 +982,6 @@ model UserPermission {
   @@index([grantedById])
 }
 
-
 enum AdvertisementBanner_placement {
   HOME_TOP
   HOME_MIDDLE
@@ -1151,9 +1028,7 @@ enum Magazine_status {
 
 enum Event_status {
   DRAFT
-  PENDING
   PUBLISHED
-  REJECTED
   ARCHIVED
 }
 
@@ -1255,3 +1130,9 @@ enum TeamMemberStatus {
   FORMER
 }
 
+enum ConnectionRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
