@@ -317,6 +317,33 @@ export async function uploadEventDocumentToCloudinary(file) {
   });
 }
 
+// ==========================================
+// Industry Talk Upload Helpers
+// ==========================================
+
+export async function uploadIndustryTalkImageToCloudinary(file) {
+  return uploadBufferToCloudinary(file, {
+    folder: "mould-tech/industry-talks/images",
+    resourceType: "image",
+  });
+}
+
+export async function uploadIndustryTalkVideoToCloudinary(file) {
+  return uploadBufferToCloudinary(file, {
+    folder: "mould-tech/industry-talks/videos",
+    resourceType: "video",
+  });
+}
+
+export async function uploadIndustryTalkDocumentToCloudinary(file) {
+  return uploadBufferToCloudinary(file, {
+    folder: "mould-tech/industry-talks/documents",
+    resourceType: "auto",
+  });
+}
+
+
+
 // ----------------------------
 // ✅ NEW: Multer instance for the Add Event form
 // Your existing `upload` instance rejects everything except PDFs (it was
@@ -360,3 +387,124 @@ export const uploadEventFiles = multer({
   { name: "brochure", maxCount: 1 },
   { name: "otherImages", maxCount: 10 },
 ]);
+
+export const uploadIndustryTalk = async (req, res) => {
+  try {
+    const response = {};
+
+    if (req.files?.banner?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.banner[0]);
+      response.bannerImage = result.secure_url;
+    }
+
+    if (req.files?.companyLogo?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.companyLogo[0]);
+      response.companyLogo = result.secure_url;
+    }
+
+    if (req.files?.profileImage?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.profileImage[0]);
+      response.profileImage = result.secure_url;
+    }
+
+    if (req.files?.thumbnail?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.thumbnail[0]);
+      response.thumbnailUrl = result.secure_url;
+    }
+
+    if (req.files?.video?.length) {
+      const result = await uploadIndustryTalkVideoToCloudinary(req.files.video[0]);
+      response.uploadedVideo = result.secure_url;
+    }
+
+    res.json({
+      success: true,
+      data: response,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+export const uploadIndustryTalk = async (req, res) => {
+  try {
+    const response = {};
+
+    // Banner
+    if (req.files?.banner?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.banner[0]);
+      response.bannerImage = result.secure_url;
+    }
+
+    // Company Logo
+    if (req.files?.companyLogo?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.companyLogo[0]);
+      response.companyLogo = result.secure_url;
+    }
+
+    // Profile Image
+    if (req.files?.profileImage?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.profileImage[0]);
+      response.profileImage = result.secure_url;
+    }
+
+    // Thumbnail
+    if (req.files?.thumbnail?.length) {
+      const result = await uploadIndustryTalkImageToCloudinary(req.files.thumbnail[0]);
+      response.thumbnailUrl = result.secure_url;
+    }
+
+    // Video
+    if (req.files?.video?.length) {
+      const result = await uploadIndustryTalkVideoToCloudinary(req.files.video[0]);
+      response.uploadedVideo = result.secure_url;
+    }
+
+    // Gallery
+    if (req.files?.gallery?.length) {
+      response.gallery = [];
+
+      for (const file of req.files.gallery) {
+        const result = await uploadIndustryTalkImageToCloudinary(file);
+
+        response.gallery.push({
+          imageUrl: result.secure_url,
+        });
+      }
+    }
+
+    // Documents
+    if (req.files?.documents?.length) {
+      response.documents = [];
+
+      for (const file of req.files.documents) {
+        const result = await uploadIndustryTalkDocumentToCloudinary(file);
+
+        response.documents.push({
+          title: file.originalname,
+          fileUrl: result.secure_url,
+          fileSize: file.size,
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      data: response,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
