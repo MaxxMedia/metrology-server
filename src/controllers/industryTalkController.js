@@ -1,12 +1,95 @@
 import * as industryTalkService from "../services/industryTalkService.js";
 
 // ================================
+// Helpers
+// ================================
+
+function cleanText(str, stripTags = true) {
+  if (!str || typeof str !== "string") return str;
+  let cleaned = str.replace(/&nbsp;/g, " ");
+  if (stripTags) {
+    cleaned = cleaned.replace(/<[^>]*>?/gm, " ");
+  }
+  return cleaned
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function formatTalkResponse(talk) {
+  if (!talk) return talk;
+  if (Array.isArray(talk)) {
+    return talk.map(formatTalkResponse);
+  }
+  return {
+    ...talk,
+    shortBio: cleanText(talk.shortBio, true),
+    introduction: talk.introduction ? talk.introduction.replace(/&nbsp;/g, " ") : talk.introduction,
+  };
+}
+
+// multipart/form-data delivers every field as a string. Prisma needs
+// real types (Int, Boolean) for the corresponding schema fields, so
+// coerce them here before they reach the service/Prisma layer.
+function normalizeIndustryTalkBody(body) {
+  const normalized = { ...body };
+
+  // Int fields — empty string / undefined -> null, otherwise parseInt
+  for (const field of ["industryId", "categoryId"]) {
+    if (normalized[field] === "" || normalized[field] === undefined) {
+      normalized[field] = null;
+    } else if (typeof normalized[field] === "string") {
+      const parsed = parseInt(normalized[field], 10);
+      normalized[field] = Number.isNaN(parsed) ? null : parsed;
+    }
+  }
+
+  // Boolean fields — "true"/"false" strings -> real booleans
+  for (const field of ["featured", "trending", "homepage", "autoplay", "showControls"]) {
+    if (typeof normalized[field] === "string") {
+      normalized[field] = normalized[field] === "true";
+    }
+  }
+
+  // duration comes from the frontend as "mm:ss" (e.g. "18:45").
+  // Prisma's duration column is Int (seconds) — convert here.
+  if (typeof normalized.duration === "string") {
+    normalized.duration = parseDurationToSeconds(normalized.duration);
+  }
+
+  return normalized;
+}
+
+// "18:45" -> 1125 (seconds). "1:02:30" -> 3750. "" or malformed -> null.
+function parseDurationToSeconds(value) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const parts = trimmed.split(":").map((p) => parseInt(p, 10));
+  if (parts.some((n) => Number.isNaN(n))) return null;
+
+  if (parts.length === 2) {
+    const [minutes, seconds] = parts;
+    return minutes * 60 + seconds;
+  }
+  if (parts.length === 3) {
+    const [hours, minutes, seconds] = parts;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  return null;
+}
+
+// ================================
 // Create Industry Talk
 // ================================
 export const createIndustryTalk = async (req, res) => {
   try {
     const talk = await industryTalkService.createIndustryTalk({
-      ...req.body,
+      ...normalizeIndustryTalkBody(req.body),
       createdById: req.user.id,
     });
 
@@ -58,7 +141,7 @@ export const updateIndustryTalk = async (req, res) => {
 
     const talk = await industryTalkService.updateIndustryTalk(
       Number(id),
-      req.body
+      normalizeIndustryTalkBody(req.body)
     );
 
     return res.json({
@@ -129,7 +212,7 @@ export const getIndustryTalks = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     // Validate pagination params
     if (page < 1 || limit < 1) {
       return res.status(400).json({
@@ -145,9 +228,14 @@ export const getIndustryTalks = async (req, res) => {
       status: req.query.status,
     });
 
+    const formattedData = Array.isArray(data.data)
+      ? data.data.map(formatTalkResponse)
+      : data.data;
+
     return res.json({
       success: true,
       ...data,
+      data: formattedData,
     });
   } catch (error) {
     console.error("Get Industry Talks:", error);
@@ -185,7 +273,7 @@ export const getIndustryTalkById = async (req, res) => {
 
     return res.json({
       success: true,
-      data: talk,
+      data: formatTalkResponse(talk),
     });
   } catch (error) {
     console.error("Get Industry Talk By ID:", error);
@@ -225,7 +313,7 @@ export const getIndustryTalkBySlug = async (req, res) => {
 
     return res.json({
       success: true,
-      data: talk,
+      data: formatTalkResponse(talk),
     });
   } catch (error) {
     console.error("Get Industry Talk By Slug:", error);
