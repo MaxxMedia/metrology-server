@@ -119,6 +119,7 @@ function industryTalkToPostShape(talk) {
     slug: talk.slug,
     excerpt: plainIntro ? plainIntro.slice(0, 220) : null,
     content: talk.introduction || null,
+    contentBlocks: null, // Industry talks don't use blocks
     imageUrl: talk.bannerImage || talk.thumbnailUrl || null,
     publishedAt: talk.publishedAt || keywords.interviewDate || talk.createdAt,
     views: talk.views,
@@ -209,7 +210,6 @@ export const getRecruiterArticleBySlug = async (req, res) => {
   }
 }
 
-
 // GET /api/posts/featured
 export const getFeaturedPosts = async (req, res) => {
   try {
@@ -235,12 +235,13 @@ export const createPost = async (req, res) => {
       badge,
       excerpt,
       content,
+      contentBlocks, // ✅ NEW: Block-based content
       imageUrl,
       authorId,
       categoryId,
       publishedAt,
 
-      // ✅ NEW OPTIONAL FIELDS
+      // Social & Contact fields
       facebookUrl,
       linkedinUrl,
       twitterUrl,
@@ -249,8 +250,15 @@ export const createPost = async (req, res) => {
       whatsappNumber,
     } = req.body;
 
-    if (!title || !slug || !content || !authorId || !categoryId) {
+    if (!title || !slug || !authorId || !categoryId) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Validate content - either content or contentBlocks must exist
+    if (!content && (!contentBlocks || !contentBlocks.length)) {
+      return res.status(400).json({ 
+        error: "Either content or contentBlocks is required" 
+      });
     }
 
     const post = await prisma.post.create({
@@ -259,10 +267,11 @@ export const createPost = async (req, res) => {
         slug,
         badge,
         excerpt,
-        content,
+        content: content || "", // Keep for backward compatibility
+        contentBlocks: contentBlocks || [], // ✅ Store blocks
         imageUrl,
 
-        // ✅ SAVE OPTIONAL FIELDS
+        // Social & Contact fields
         facebookUrl,
         linkedinUrl,
         twitterUrl,
@@ -287,29 +296,68 @@ export const createPost = async (req, res) => {
   }
 };
 
-
 // PUT /api/posts/:id
 export const updatePost = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const data = req.body;
+    const {
+      title,
+      slug,
+      badge,
+      excerpt,
+      content,
+      contentBlocks, // ✅ NEW: Block-based content
+      imageUrl,
+      authorId,
+      categoryId,
+      publishedAt,
+      
+      // Social & Contact fields
+      facebookUrl,
+      linkedinUrl,
+      twitterUrl,
+      youtubeUrl,
+      email,
+      whatsappNumber,
+    } = req.body;
 
-    if (data.authorId) data.authorId = Number(data.authorId);
-    if (data.categoryId) data.categoryId = Number(data.categoryId);
+    // Build update data
+    const updateData = {
+      title,
+      slug,
+      badge,
+      excerpt,
+      content: content || "",
+      contentBlocks: contentBlocks || [], // ✅ Update blocks
+      imageUrl,
+      facebookUrl,
+      linkedinUrl,
+      twitterUrl,
+      youtubeUrl,
+      email,
+      whatsappNumber,
+    };
+
+    // Only include if provided
+    if (authorId) updateData.authorId = Number(authorId);
+    if (categoryId) updateData.categoryId = Number(categoryId);
+    if (publishedAt) updateData.publishedAt = new Date(publishedAt);
 
     const updated = await prisma.post.update({
       where: { id },
-      data, // ✅ includes facebookUrl, twitterUrl, etc automatically
+      data: updateData,
       include: { author: true, category: true },
     });
 
     res.json(updated);
   } catch (err) {
     console.error(err);
+    if (err?.code === "P2002") {
+      return res.status(409).json({ error: "Slug must be unique" });
+    }
     res.status(400).json({ error: err.message });
   }
 };
-
 
 // DELETE /api/posts/:id
 export const deletePost = async (req, res) => {
@@ -340,7 +388,6 @@ export const incrementPostView = async (req, res) => {
   }
 };
 
-
 export const incrementPostShare = async (req, res) => {
   try {
     const { slug } = req.params
@@ -358,3 +405,29 @@ export const incrementPostShare = async (req, res) => {
     res.status(500).json({ error: "Failed to increment share" })
   }
 }
+
+
+// src/controllers/postsController.js
+// Add this function after getFeaturedPosts
+
+// GET /api/posts/popular
+export const getPopularPosts = async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || "5"), 20);
+    
+    const popularPosts = await prisma.post.findMany({
+      where: {
+        status: "APPROVED",
+        publishedAt: { not: null },
+      },
+      include: { author: true, category: true },
+      orderBy: { views: "desc" },
+      take: limit,
+    });
+    
+    res.json({ data: popularPosts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch popular posts" });
+  }
+};
