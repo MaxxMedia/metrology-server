@@ -22,19 +22,19 @@ export const getAllPosts = async (req, res) => {
       AND: [
         q
           ? {
-              OR: [
-                { title: { contains: q, mode: "insensitive" } },
-                { excerpt: { contains: q, mode: "insensitive" } },
-                { content: { contains: q, mode: "insensitive" } },
-              ],
-            }
+            OR: [
+              { title: { contains: q, mode: "insensitive" } },
+              { excerpt: { contains: q, mode: "insensitive" } },
+              { content: { contains: q, mode: "insensitive" } },
+            ],
+          }
           : {},
         category
           ? {
-              category: {
-                is: { slug: category },
-              },
-            }
+            category: {
+              is: { slug: category },
+            },
+          }
           : {},
         author ? { authorId: author } : {},
       ],
@@ -46,7 +46,7 @@ export const getAllPosts = async (req, res) => {
       prisma.post.findMany({
         where,
         include: { author: true, category: true },
-        orderBy: { publishedAt: "desc" },
+        orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -71,7 +71,18 @@ export const getAllPosts = async (req, res) => {
 // GET /api/posts/:id
 export const getPostById = async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const rawId = req.params.id;
+    const id = Number(rawId);
+
+    // Guard: reject anything that isn't a valid positive integer BEFORE
+    // it ever reaches Prisma. Without this, a non-numeric value (e.g. a
+    // slug accidentally sent to this route) becomes NaN, and Prisma's
+    // query engine reports that as "Argument `id` is missing." instead
+    // of a clear type error — which is what was crashing/logging above.
+    if (!rawId || !Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid post id" });
+    }
+
     const post = await prisma.post.findUnique({
       where: { id },
       include: { author: true, category: true, comments: true },
@@ -152,9 +163,9 @@ function industryTalkToPostShape(talk) {
     },
     qa: Array.isArray(talk.questions)
       ? talk.questions.map((q) => ({
-          question: q.question,
-          answer: q.answer || "",
-        }))
+        question: q.question,
+        answer: q.answer || "",
+      }))
       : [],
   };
 }
@@ -354,8 +365,8 @@ export const createPost = async (req, res) => {
 
     // Validate content - either content or contentBlocks must exist
     if (!content && (!contentBlocks || !contentBlocks.length)) {
-      return res.status(400).json({ 
-        error: "Either content or contentBlocks is required" 
+      return res.status(400).json({
+        error: "Either content or contentBlocks is required",
       });
     }
 
@@ -398,6 +409,11 @@ export const createPost = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const id = Number(req.params.id);
+
+    if (!req.params.id || !Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid post id" });
+    }
+
     const {
       title,
       slug,
@@ -409,7 +425,7 @@ export const updatePost = async (req, res) => {
       authorId,
       categoryId,
       publishedAt,
-      
+
       // Social & Contact fields
       facebookUrl,
       linkedinUrl,
@@ -461,6 +477,11 @@ export const updatePost = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const id = Number(req.params.id);
+
+    if (!req.params.id || !Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid post id" });
+    }
+
     await prisma.post.delete({ where: { id } });
     res.json({ success: true });
   } catch (err) {
@@ -473,35 +494,51 @@ export const incrementPostView = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const post = await prisma.post.update({
-      where: { slug },
-      data: { views: { increment: 1 } },
-      select: { views: true },
-    });
-
-    res.json({ success: true, views: post.views });
+    try {
+      const post = await prisma.post.update({
+        where: { slug },
+        data: { views: { increment: 1 } },
+        select: { views: true },
+      });
+      return res.json({ success: true, views: post.views });
+    } catch (postErr) {
+      const talk = await prisma.industryTalk.update({
+        where: { slug },
+        data: { views: { increment: 1 } },
+        select: { views: true },
+      });
+      return res.json({ success: true, views: talk.views });
+    }
   } catch (err) {
     console.error("View increment error:", err);
-    res.status(404).json({ success: false, message: "Post not found" });
+    res.status(404).json({ success: false, message: "Post or Talk not found" });
   }
 };
 
 export const incrementPostShare = async (req, res) => {
   try {
-    const { slug } = req.params
+    const { slug } = req.params;
 
-    await prisma.post.update({
-      where: { slug },
-      data: {
-        shares: { increment: 1 },
-      },
-    })
-
-    res.json({ success: true })
+    try {
+      await prisma.post.update({
+        where: { slug },
+        data: {
+          shares: { increment: 1 },
+        },
+      });
+      return res.json({ success: true });
+    } catch (postErr) {
+      await prisma.industryTalk.update({
+        where: { slug },
+        data: {
+          shares: { increment: 1 },
+        },
+      });
+      return res.json({ success: true });
+    }
   } catch (err) {
-    console.error("Share increment error:", err)
-    res.status(500).json({ error: "Failed to increment share" })
+    console.error("Share increment error:", err);
+    res.status(500).json({ error: "Failed to increment share" });
   }
-}
-
+};
 
