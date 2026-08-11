@@ -2,6 +2,39 @@
 import prisma from "../../shared/lib/prisma.js";
 import * as industryTalkService from "../industryTalks/industryTalk.service.js";
 
+const postInclude = { author: true, category: true, subCategory: true };
+const postIncludeWithComments = {
+  author: true,
+  category: true,
+  subCategory: true,
+  comments: true,
+};
+
+/** Validate optional subCategoryId belongs to categoryId. Returns number|null. */
+async function resolveSubCategoryId(categoryId, subCategoryId) {
+  if (subCategoryId === undefined || subCategoryId === null || subCategoryId === "") {
+    return null;
+  }
+  const id = Number(subCategoryId);
+  if (!Number.isInteger(id) || id <= 0) {
+    const err = new Error("Invalid subCategoryId");
+    err.status = 400;
+    throw err;
+  }
+  const sub = await prisma.category.findUnique({ where: { id } });
+  if (!sub || sub.parentId == null) {
+    const err = new Error("Subcategory not found");
+    err.status = 400;
+    throw err;
+  }
+  if (Number(sub.parentId) !== Number(categoryId)) {
+    const err = new Error("Subcategory does not belong to the selected category");
+    err.status = 400;
+    throw err;
+  }
+  return id;
+}
+
 /**
  * GET /api/posts
  * Supports:
@@ -47,7 +80,7 @@ export const getAllPosts = async (req, res) => {
     const [data, total] = await Promise.all([
       prisma.post.findMany({
         where,
-        include: { author: true, category: true },
+        include: postInclude,
         orderBy: { publishedAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
@@ -87,7 +120,7 @@ export const getPostById = async (req, res) => {
 
     const post = await prisma.post.findUnique({
       where: { id },
-      include: { author: true, category: true, comments: true },
+      include: postIncludeWithComments,
     });
     if (!post) return res.status(404).json({ error: "Post not found" });
     res.json(post);
@@ -178,7 +211,7 @@ export const getPostBySlug = async (req, res) => {
     const { slug } = req.params;
     const post = await prisma.post.findUnique({
       where: { slug },
-      include: { author: true, category: true, comments: true },
+      include: postIncludeWithComments,
     });
 
     if (post) return res.json(post);
@@ -228,7 +261,7 @@ export const getFeaturedPosts = async (req, res) => {
   try {
     const trendingPosts = await prisma.post.findMany({
       where: { category: { slug: "trending" } },
-      include: { author: true, category: true },
+      include: postInclude,
       orderBy: { publishedAt: "desc" },
       take: 2,
     });
@@ -252,10 +285,7 @@ export const getPopularPosts = async (req, res) => {
           lte: new Date() // ✅ Only published posts (not future)
         }
       },
-      include: { 
-        author: true, 
-        category: true 
-      },
+      include: postInclude,
       orderBy: { 
         views: "desc"  // ✅ Sort by views (highest first)
       },
@@ -288,6 +318,7 @@ export const createPost = async (req, res) => {
       imageUrl,
       authorId,
       categoryId,
+      subCategoryId,
       publishedAt,
 
       // Social & Contact fields
@@ -310,6 +341,12 @@ export const createPost = async (req, res) => {
       });
     }
 
+    const resolvedCategoryId = Number(categoryId);
+    const resolvedSubCategoryId = await resolveSubCategoryId(
+      resolvedCategoryId,
+      subCategoryId
+    );
+
     const post = await prisma.post.create({
       data: {
         title,
@@ -329,16 +366,20 @@ export const createPost = async (req, res) => {
         whatsappNumber,
 
         authorId: Number(authorId),
-        categoryId: Number(categoryId),
+        categoryId: resolvedCategoryId,
+        subCategoryId: resolvedSubCategoryId,
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
         status: "APPROVED", // Default status
       },
-      include: { author: true, category: true },
+      include: postInclude,
     });
 
     res.status(201).json(post);
   } catch (err) {
     console.error(err);
+    if (err?.status) {
+      return res.status(err.status).json({ error: err.message });
+    }
     if (err?.code === "P2002") {
       return res.status(409).json({ error: "Slug must be unique" });
     }
@@ -365,6 +406,7 @@ export const updatePost = async (req, res) => {
       imageUrl,
       authorId,
       categoryId,
+      subCategoryId,
       publishedAt,
 
       // Social & Contact fields
@@ -395,18 +437,53 @@ export const updatePost = async (req, res) => {
 
     // Only include if provided
     if (authorId) updateData.authorId = Number(authorId);
-    if (categoryId) updateData.categoryId = Number(categoryId);
     if (publishedAt) updateData.publishedAt = new Date(publishedAt);
+
+    if (categoryId !== undefined && categoryId !== null && categoryId !== "") {
+      updateData.categoryId = Number(categoryId);
+    }
+
+    if ("subCategoryId" in req.body || updateData.categoryId) {
+      const existing = await prisma.post.findUnique({
+        where: { id },
+        select: {
+          categoryId: true,
+          subCategoryId: true,
+          subCategory: { select: { parentId: true } },
+        },
+      });
+      if (!existing) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      const effectiveCategoryId = updateData.categoryId ?? existing.categoryId;
+
+      if ("subCategoryId" in req.body) {
+        updateData.subCategoryId = await resolveSubCategoryId(
+          effectiveCategoryId,
+          subCategoryId
+        );
+      } else if (
+        existing.subCategoryId &&
+        existing.subCategory?.parentId !== effectiveCategoryId
+      ) {
+        // Parent category changed; drop orphaned subcategory
+        updateData.subCategoryId = null;
+      }
+    }
 
     const updated = await prisma.post.update({
       where: { id },
       data: updateData,
-      include: { author: true, category: true },
+      include: postInclude,
     });
 
     res.json(updated);
   } catch (err) {
     console.error(err);
+    if (err?.status) {
+      return res.status(err.status).json({ error: err.message });
+    }
     if (err?.code === "P2002") {
       return res.status(409).json({ error: "Slug must be unique" });
     }
