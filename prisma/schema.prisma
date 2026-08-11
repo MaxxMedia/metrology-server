@@ -17,10 +17,16 @@ model Author {
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
-  slug  String @unique
-  posts Post[]
+  id       Int        @id @default(autoincrement())
+  name     String
+  slug     String     @unique
+  parentId Int?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children Category[] @relation("CategoryHierarchy")
+  posts    Post[]     @relation("PostCategory")
+  subPosts Post[]     @relation("PostSubCategory")
+
+  @@index([parentId])
 }
 
 model Post {
@@ -41,6 +47,7 @@ model Post {
   authorId                     Int?
   companyId                    Int?
   categoryId                   Int
+  subCategoryId                Int?
   status                       Post_status @default(PENDING)
   createdById                  Int?
   approvedById                 Int?
@@ -53,13 +60,15 @@ model Post {
   comments                     Comment[]
   User_Post_approvedByIdToUser User?       @relation("Post_approvedByIdToUser", fields: [approvedById], references: [id])
   author                       Author?     @relation(fields: [authorId], references: [id])
-  category                     Category    @relation(fields: [categoryId], references: [id])
+  category                     Category    @relation("PostCategory", fields: [categoryId], references: [id])
+  subCategory                  Category?   @relation("PostSubCategory", fields: [subCategoryId], references: [id])
   Company                      Company?    @relation(fields: [companyId], references: [id])
   User_Post_createdByIdToUser  User?       @relation("Post_createdByIdToUser", fields: [createdById], references: [id])
 
   @@index([approvedById])
   @@index([authorId])
   @@index([categoryId])
+  @@index([subCategoryId])
   @@index([companyId])
   @@index([createdById])
 }
