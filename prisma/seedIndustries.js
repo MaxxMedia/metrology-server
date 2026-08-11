@@ -1,4 +1,4 @@
-// import prisma from "../src/prismaClient.js";
+// import prisma from "../src/shared/lib/prisma.js";
 // import slugify from "slugify";
 
 // /* ======================================
@@ -62,7 +62,7 @@
 //   .finally(() => prisma.$disconnect());
 
 
-import prisma from "../src/prismaClient.js";
+import prisma from "../src/shared/lib/prisma.js";
 import slugify from "slugify";
 
 /* ======================================
