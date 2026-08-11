@@ -1,5 +1,5 @@
 /**
- * Mount all API routers. ORDER MATTERS — more specific routes first.
+ * Mount all API routers. ORDER MATTERS — more specific routes firsts.
  */
 import postsRoutes from "../modules/content/posts.routes.js";
 import authorsRoutes from "../modules/content/authors.routes.js";
