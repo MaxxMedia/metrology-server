@@ -7,6 +7,10 @@ export const allowedOrigins = [
   "http://localhost:3000",
   "https://www.toolingtrends.com",
   "https://toolingtrends.com",
+  "https://www.mould-technology.com",
+  "https://metrology-frontend-lxx4.vercel.app/",
+  
+
 ];
 
 export const corsOptions = {
