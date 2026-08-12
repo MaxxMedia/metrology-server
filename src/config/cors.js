@@ -8,8 +8,8 @@ export const allowedOrigins = [
   "https://www.toolingtrends.com",
   "https://toolingtrends.com",
   "https://www.mould-technology.com",
-  "https://metrology-frontend-lxx4.vercel.app/",
-  
+  "https://metrology-frontend-lxx4.vercel.app",
+
 
 ];
 
