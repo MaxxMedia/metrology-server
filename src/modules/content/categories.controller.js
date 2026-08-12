@@ -27,6 +27,20 @@ async function assertValidParentId(parentId) {
   return id;
 }
 
+const categoryCountInclude = {
+  children: {
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: { posts: true, subPosts: true },
+      },
+    },
+  },
+  _count: {
+    select: { posts: true, subPosts: true },
+  },
+};
+
 export const getCategories = async (req, res) => {
   try {
     const parentsOnly =
@@ -36,18 +50,14 @@ export const getCategories = async (req, res) => {
       const categories = await prisma.category.findMany({
         where: { parentId: null },
         orderBy: { name: "asc" },
-        include: {
-          children: { orderBy: { name: "asc" } },
-        },
+        include: categoryCountInclude,
       });
       return res.json(categories);
     }
 
     const categories = await prisma.category.findMany({
       orderBy: [{ parentId: "asc" }, { name: "asc" }],
-      include: {
-        children: { orderBy: { name: "asc" } },
-      },
+      include: categoryCountInclude,
     });
 
     res.json(categories);
