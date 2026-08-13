@@ -35,6 +35,32 @@ async function resolveSubCategoryId(categoryId, subCategoryId) {
   return id;
 }
 
+/** Build Prisma where clause for ?category=slug (parent includes all subcategory posts). */
+async function resolveCategoryWhere(categorySlug) {
+  const cat = await prisma.category.findUnique({
+    where: { slug: categorySlug },
+    include: { children: { select: { id: true } } },
+  });
+
+  if (!cat) {
+    return { category: { is: { slug: categorySlug } } };
+  }
+
+  if (cat.parentId == null) {
+    const childIds = cat.children.map((c) => c.id);
+    return {
+      OR: [
+        { categoryId: cat.id },
+        ...(childIds.length > 0 ? [{ subCategoryId: { in: childIds } }] : []),
+      ],
+    };
+  }
+
+  return {
+    OR: [{ subCategoryId: cat.id }, { categoryId: cat.id }],
+  };
+}
+
 /**
  * GET /api/posts
  * Supports:
@@ -51,6 +77,8 @@ export const getAllPosts = async (req, res) => {
     const category = req.query.category || null;
     const author = req.query.author ? Number(req.query.author) : null;
 
+    const categoryWhere = category ? await resolveCategoryWhere(category) : null;
+
     const where = {
       AND: [
         { status: "APPROVED" }, // ✅ Only show approved posts
@@ -64,13 +92,7 @@ export const getAllPosts = async (req, res) => {
               ],
             }
           : {},
-        category
-          ? {
-              category: {
-                is: { slug: category },
-              },
-            }
-          : {},
+        categoryWhere || {},
         author ? { authorId: author } : {},
       ],
     };
