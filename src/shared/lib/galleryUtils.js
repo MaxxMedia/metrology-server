@@ -73,6 +73,11 @@ export function validateAndSanitizeGalleryArray(galleryArray) {
         // Convert legacy string format
         const normalizedItem = convertToGalleryObject(item);
 
+        // Skip empty placeholder rows — galleries are optional on lower plans
+        if (!normalizedItem.image || normalizedItem.image.trim() === '') {
+            continue;
+        }
+
         // Validate
         const itemErrors = validateGalleryItem(normalizedItem);
         if (itemErrors.length > 0) {
