@@ -86,6 +86,12 @@ export const ALL_PERMISSIONS = [
     { key: "industry_talks.view", label: "View Industry Talks", module: "industry_talks" },
     { key: "industry_talks.create", label: "Create Industry Talks", module: "industry_talks" },
     { key: "industry_talks.edit", label: "Edit Industry Talks", module: "industry_talks" },
+
+    // Webinars
+    { key: "webinar.view", label: "View Webinars", module: "webinar" },
+    { key: "webinar.create", label: "Create Webinars", module: "webinar" },
+    { key: "webinar.edit", label: "Edit Webinars", module: "webinar" },
+    { key: "webinar.delete", label: "Delete Webinars", module: "webinar" },
 ];
 
 export const ALL_PERMISSION_KEYS = ALL_PERMISSIONS.map((p) => p.key);

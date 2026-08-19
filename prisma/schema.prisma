@@ -25,6 +25,7 @@ model Category {
   children Category[] @relation("CategoryHierarchy")
   posts    Post[]     @relation("PostCategory")
   subPosts Post[]     @relation("PostSubCategory")
+  webinars Webinar[]
 
   @@index([parentId])
 }
@@ -164,6 +165,8 @@ model User {
 
   industryTalksCreated  IndustryTalk[] @relation("IndustryTalkCreatedBy")
   industryTalksApproved IndustryTalk[] @relation("IndustryTalkApprovedBy")
+  webinarsCreated       Webinar[]      @relation("WebinarCreatedBy")
+  webinarsApproved      Webinar[]      @relation("WebinarApprovedBy")
 
   @@index([companyId])
 }
@@ -609,6 +612,55 @@ model IndustryTalkDocument {
   industryTalk IndustryTalk @relation(fields: [industryTalkId], references: [id], onDelete: Cascade)
 
   @@index([industryTalkId])
+}
+
+model Webinar {
+  id                   Int             @id @default(autoincrement())
+  title                String
+  slug                 String          @unique
+  shortDescription     String?         @db.Text
+  fullDescription      String?         @db.Text
+  heroImage            String?
+  thumbnail            String?
+  speakerName          String
+  speakerDesignation   String?
+  speakerCompany       String?
+  speakerImage         String?
+  speakerLinkedin      String?
+  registrationUrl      String?
+  meetingUrl           String?
+  youtubeUrl           String?
+  startDate            DateTime?
+  endDate              DateTime?
+  duration             Int             @default(60)
+  language             String          @default("English")
+  certificateAvailable Boolean         @default(false)
+  maxSeats             Int?
+  registeredSeats      Int             @default(0)
+  seoTitle             String?
+  seoDescription       String?         @db.Text
+  agenda               Json?
+  learningPoints       Json?
+  resources            Json?
+  status               Webinar_status  @default(DRAFT)
+  featured             Boolean         @default(false)
+  isOnDemand           Boolean         @default(false)
+  rejectionReason      String?
+  views                Int             @default(0)
+  categoryId           Int?
+  createdById          Int?
+  approvedById         Int?
+  publishedAt          DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  category             Category?       @relation(fields: [categoryId], references: [id])
+  createdBy            User?           @relation("WebinarCreatedBy", fields: [createdById], references: [id])
+  approvedBy           User?           @relation("WebinarApprovedBy", fields: [approvedById], references: [id])
+
+  @@index([status])
+  @@index([slug])
+  @@index([categoryId])
+  @@index([createdById])
 }
 
 model Event {
@@ -1203,6 +1255,15 @@ enum Event_status {
   ARCHIVED
   PENDING
   REJECTED
+}
+
+enum Webinar_status {
+  DRAFT
+  PENDING
+  APPROVED
+  PUBLISHED
+  REJECTED
+  ARCHIVED
 }
 
 enum SupplierDirectory_status {

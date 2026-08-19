@@ -54,6 +54,7 @@ import adminRoleRoutes from "../modules/admin/adminRole.routes.js";
 import adminActivityRoutes from "../modules/admin/adminActivity.routes.js";
 import adminPermissionRoutes from "../modules/admin/adminPermission.routes.js";
 import industryTalkRoutes from "../modules/industryTalks/industryTalk.routes.js";
+import { webinarPublicRoutes, webinarAdminRoutes } from "../modules/webinars/webinar.routes.js";
 
 export function mountRoutes(app) {
   // Contact was historically mounted early (before health) — keep that order.
@@ -105,6 +106,8 @@ export function mountRoutes(app) {
   app.use("/api/admin", adminUsersRoutes);
   app.use("/api/admin", adminAnalyticsRoutes);
   app.use("/api/industry-talks", industryTalkRoutes);
+  app.use("/api/webinars", webinarPublicRoutes);
+  app.use("/api/admin/webinars", webinarAdminRoutes);
 
   console.log("🔵 Mounting admin sub-admin (RBAC) routes...");
   app.use("/api/admin", adminSubAdminRoutes);
