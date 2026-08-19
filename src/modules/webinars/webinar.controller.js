@@ -2,6 +2,8 @@ import slugify from "slugify";
 import { prisma } from "../../shared/lib/prisma.js";
 
 const WEBINAR_STATUSES = ["DRAFT", "PENDING", "APPROVED", "PUBLISHED", "REJECTED", "ARCHIVED"];
+// Approved + published webinars are visible on the public site.
+const PUBLIC_STATUSES = ["PUBLISHED", "APPROVED"];
 
 function parseArrayField(value) {
   if (!value) return [];
@@ -305,7 +307,8 @@ export async function approveWebinar(req, res) {
     const webinar = await prisma.webinar.update({
       where: { id: existing.id },
       data: {
-        status: "APPROVED",
+        status: "PUBLISHED",
+        publishedAt: new Date(),
         approvedById: req.user?.id ?? null,
         rejectionReason: null,
       },
@@ -425,7 +428,7 @@ export async function toggleOnDemandWebinar(req, res) {
 export async function listPublicWebinars(req, res) {
   try {
     const rows = await prisma.webinar.findMany({
-      where: { status: "PUBLISHED" },
+      where: { status: { in: PUBLIC_STATUSES } },
       orderBy: [{ featured: "desc" }, { startDate: "desc" }],
       include: { category: true },
     });
@@ -442,7 +445,7 @@ export async function getPublicWebinarBySlug(req, res) {
     const webinar = await prisma.webinar.findFirst({
       where: {
         slug: req.params.slug,
-        status: "PUBLISHED",
+        status: { in: PUBLIC_STATUSES },
       },
       include: { category: true },
     });
@@ -466,7 +469,7 @@ export async function getRelatedWebinars(req, res) {
     const current = await prisma.webinar.findFirst({
       where: {
         slug: req.params.slug,
-        status: "PUBLISHED",
+        status: { in: PUBLIC_STATUSES },
       },
       select: { id: true, categoryId: true },
     });
@@ -475,7 +478,7 @@ export async function getRelatedWebinars(req, res) {
 
     const related = await prisma.webinar.findMany({
       where: {
-        status: "PUBLISHED",
+        status: { in: PUBLIC_STATUSES },
         id: { not: current.id },
         ...(current.categoryId ? { categoryId: current.categoryId } : {}),
       },
