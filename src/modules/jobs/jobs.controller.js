@@ -349,6 +349,11 @@ export async function getJobBySlug(req, res) {
         email: true,
       },
     },
+    _count: {
+      select: {
+        JobApplication: true,
+      },
+    },
   },
 });
 
@@ -365,7 +370,13 @@ export async function getJobBySlug(req, res) {
       return res.status(404).json({ error: "Job not found" });
     }
 
-    res.json(job);
+    const applicationsCount = job._count?.JobApplication ?? job.applicationsCount ?? 0;
+
+    res.json({
+      ...job,
+      applicationsCount,
+      applicants: applicationsCount,
+    });
   } catch (err) {
   console.error("GET JOB ERROR:", err)
   res.status(500).json({
@@ -434,6 +445,7 @@ export async function getMyRecruiterJobs(req, res) {
   createdAt: true,
   views: true,
   isActive: true,
+  applicationsCount: true,
   _count: {
     select: {
       JobApplication: true,
@@ -853,12 +865,39 @@ export const getAdminCompanyJobs = async (req, res) => {
   }
 }
 
+// In-memory cache to deduplicate rapid view increments (e.g. within 10s from same IP/session)
+const recentJobViewTimestamps = new Map();
+
 /**
- * 👁️ PUBLIC: Increment job view
+ * 👁️ PUBLIC: Increment job view (deduplicated)
  */
 export async function incrementJobView(req, res) {
   try {
     const { slug } = req.params;
+    const clientIp = req.ip || req.headers["x-forwarded-for"] || "unknown";
+    const cacheKey = `${clientIp}:${slug}`;
+    const now = Date.now();
+    const lastViewTime = recentJobViewTimestamps.get(cacheKey);
+
+    if (lastViewTime && now - lastViewTime < 800) {
+      // Deduplicate rapid sub-second requests (e.g. StrictMode duplicate call)
+      const job = await prisma.job.findUnique({
+        where: { slug },
+        select: { id: true, slug: true, views: true },
+      });
+      return res.json(job);
+    }
+
+    recentJobViewTimestamps.set(cacheKey, now);
+
+    // Housekeeping to prevent memory leak
+    if (recentJobViewTimestamps.size > 200) {
+      for (const [key, timestamp] of recentJobViewTimestamps.entries()) {
+        if (now - timestamp > 60000) {
+          recentJobViewTimestamps.delete(key);
+        }
+      }
+    }
 
     console.log("Incrementing views for:", slug);
 
