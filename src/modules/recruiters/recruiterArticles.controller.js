@@ -155,8 +155,6 @@ export const getMyRecruiterArticles = async (req, res) => {
       },
     })
 
-    console.log("ARTICLES FOUND:", posts.length)
-
     res.json(posts)
   } catch (error) {
     console.error("Fetch recruiter articles error:", error)

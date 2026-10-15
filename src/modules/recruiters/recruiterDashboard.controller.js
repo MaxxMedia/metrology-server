@@ -65,8 +65,6 @@ const articles = await prisma.post.findMany({
     createdAt: true,
   },
 })
-console.log("Recruiter ID:", recruiterId)
-console.log("Dashboard Articles:", articles)
     res.json({
       jobsCount: jobs.length,
       applicationsCount,
