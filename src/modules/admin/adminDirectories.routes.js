@@ -1,4 +1,4 @@
-// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\routes\adminDirectories.js
+﻿// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\routes\adminDirectories.js
 
 import express from "express"
 import multer from "multer"
@@ -9,6 +9,8 @@ import {
   approveDirectory,
   rejectDirectory,
   adminCreateDirectory,
+  adminUpdateDirectory,
+  adminDeleteDirectory,
   adminCreateFullSetup
 } from "./adminDirectory.controller.js"
 
@@ -32,7 +34,7 @@ const upload = multer({
 })
 
 // =============================================
-// ✅ MAIN ROUTE: /api/suppliers/admin (frontend uses this)
+// âœ… MAIN ROUTE: /api/suppliers/admin (frontend uses this)
 // =============================================
 router.get(
   "/suppliers/admin",
@@ -40,7 +42,7 @@ router.get(
   requireAdmin,
   async (req, res) => {
     try {
-      console.log("🔍 Fetching suppliers with user fields...")
+      console.log("ðŸ” Fetching suppliers with user fields...")
       
       const directories = await prisma.supplierDirectory.findMany({
         orderBy: { createdAt: "desc" },
@@ -65,7 +67,7 @@ router.get(
         },
       })
 
-      console.log(`📊 Found ${directories.length} directories`)
+      console.log(`ðŸ“Š Found ${directories.length} directories`)
       
       // Map the data with proper field names
       const mappedDirectories = directories.map(dir => {
@@ -91,6 +93,8 @@ router.get(
 // =============================================
 router.get("/directories/pending", requireAuth, requireAdmin, getPendingDirectories)
 router.get("/directories/:id", requireAuth, requireAdmin, getDirectoryForReview)
+router.put("/directories/:id", requireAuth, requireAdmin, adminUpdateDirectory)
+router.delete("/directories/:id", requireAuth, requireAdmin, adminDeleteDirectory)
 router.patch("/directories/:id/approve", requireAuth, requireAdmin, approveDirectory)
 router.patch("/directories/:id/reject", requireAuth, requireAdmin, rejectDirectory)
 
@@ -144,7 +148,7 @@ router.get(
   requireAdmin,
   async (req, res) => {
     try {
-      console.log("🔍 Debug: Fetching all recruiters")
+      console.log("ðŸ” Debug: Fetching all recruiters")
       
       const users = await prisma.user.findMany({
         where: {
@@ -170,7 +174,7 @@ router.get(
         },
       })
 
-      console.log(`📊 Found ${users.length} recruiters`)
+      console.log(`ðŸ“Š Found ${users.length} recruiters`)
       
       res.json({
         total: users.length,
@@ -200,7 +204,7 @@ router.post(
         },
       })
 
-      console.log(`🔧 Found ${nullUsers.length} users with null emailSentForBulkImport`)
+      console.log(`ðŸ”§ Found ${nullUsers.length} users with null emailSentForBulkImport`)
 
       const updated = await prisma.user.updateMany({
         where: {
@@ -224,3 +228,4 @@ router.post(
 )
 
 export default router
+
