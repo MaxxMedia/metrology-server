@@ -1,4 +1,4 @@
-// controllers/paymentsController.js - FIXED VERSION
+﻿// controllers/paymentsController.js - FIXED VERSION
 
 import crypto from "crypto";
 import RazorpayPkg from "razorpay";
@@ -282,7 +282,9 @@ export async function activateFreePlan(req, res) {
       // Create a company for the user
       const newCompany = await prisma.company.create({
         data: {
-          name: `${user.fullName || 'User'}'s Company`,
+          name: user.fullName?.trim()
+            ? `${user.fullName.trim()}'s Company`
+            : user.username?.trim() ? `${user.username.trim()}'s Company` : `Company ${user.id}`,
           slug: uniqueSlug,
           subscriptionPlan: "free",
           subscriptionExpiresAt: null,
@@ -518,3 +520,4 @@ export async function getAdminPaymentStats(req, res) {
     res.status(500).json({ error: "Failed to load payment stats" });
   }
 }
+

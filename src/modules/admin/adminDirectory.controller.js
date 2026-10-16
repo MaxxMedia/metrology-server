@@ -1,10 +1,10 @@
-// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\controllers\adminDirectoryController.js
+﻿// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\controllers\adminDirectoryController.js
 
 import prisma from "../../shared/lib/prisma.js"
 import bcrypt from "bcrypt";
 import slugify from "slugify";
 
-// ✅ Updated include to include lastLoginAt and emailSentForBulkImport
+// âœ… Updated include to include lastLoginAt and emailSentForBulkImport
 const submittedByInclude = {
   User_SupplierDirectory_submittedByIdToUser: {
     select: { 
@@ -116,6 +116,56 @@ export async function rejectDirectory(req, res) {
   res.json({ message: "Directory rejected" })
 }
 
+export async function adminUpdateDirectory(req, res) {
+  const directoryId = Number(req.params.id)
+  if (!Number.isInteger(directoryId) || directoryId <= 0) {
+    return res.status(400).json({ error: "Invalid directory ID" })
+  }
+
+  const { name, slug, description, logoUrl, phoneNumber, email, website, googleMapUrl } = req.body
+  if (!name?.trim() || !slug?.trim() || !description?.trim()) {
+    return res.status(400).json({ error: "Name, slug, and description are required" })
+  }
+
+  try {
+    const directory = await prisma.supplierDirectory.update({
+      where: { id: directoryId },
+      data: {
+        name: name.trim(),
+        slug: slug.trim(),
+        description: description.trim(),
+        logoUrl: logoUrl?.trim() || null,
+        phoneNumber: phoneNumber?.trim() || null,
+        email: email?.trim() || null,
+        website: website?.trim() || null,
+        googleMapUrl: googleMapUrl?.trim() || null,
+      },
+    })
+    return res.json(directory)
+  } catch (error) {
+    if (error.code === "P2002") return res.status(409).json({ error: "That directory slug is already in use" })
+    if (error.code === "P2025") return res.status(404).json({ error: "Directory not found" })
+    console.error("Admin update directory error:", error)
+    return res.status(500).json({ error: "Failed to update directory" })
+  }
+}
+
+export async function adminDeleteDirectory(req, res) {
+  const directoryId = Number(req.params.id)
+  if (!Number.isInteger(directoryId) || directoryId <= 0) {
+    return res.status(400).json({ error: "Invalid directory ID" })
+  }
+
+  try {
+    await prisma.supplierDirectory.delete({ where: { id: directoryId } })
+    return res.json({ message: "Directory deleted" })
+  } catch (error) {
+    if (error.code === "P2025") return res.status(404).json({ error: "Directory not found" })
+    if (error.code === "P2003") return res.status(409).json({ error: "This directory has related records and cannot be deleted" })
+    console.error("Admin delete directory error:", error)
+    return res.status(500).json({ error: "Failed to delete directory" })
+  }
+}
 export async function adminCreateDirectory(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" });
@@ -149,7 +199,7 @@ export async function adminCreateDirectory(req, res) {
 }
 
 /* =========================================
-   ✅ HELPER: Generate a unique username
+   âœ… HELPER: Generate a unique username
 ========================================= */
 async function generateUniqueUsername(email) {
   const base = email
@@ -189,7 +239,7 @@ export async function adminCreateFullSetup(req, res) {
     const result = await prisma.$transaction(async (tx) => {
 
       /* ==============================
-         1️⃣ VALIDATE INDUSTRY
+         1ï¸âƒ£ VALIDATE INDUSTRY
       ============================== */
       const industry = await tx.industry.findUnique({
         where: { id: Number(company.industryId) },
@@ -200,7 +250,7 @@ export async function adminCreateFullSetup(req, res) {
       }
 
       /* ==============================
-         2️⃣ CREATE COMPANY
+         2ï¸âƒ£ CREATE COMPANY
       ============================== */
       let companySlug = slugify(company.name, {
         lower: true,
@@ -230,7 +280,7 @@ export async function adminCreateFullSetup(req, res) {
       });
 
       /* ==============================
-         3️⃣ CHECK EMAIL
+         3ï¸âƒ£ CHECK EMAIL
       ============================== */
       const existingUser = await tx.user.findUnique({
         where: {
@@ -243,7 +293,7 @@ export async function adminCreateFullSetup(req, res) {
       }
 
       /* ==============================
-         4️⃣ CREATE RECRUITER
+         4ï¸âƒ£ CREATE RECRUITER
       ============================== */
       const hashedPassword = await bcrypt.hash(recruiter.password, 10);
 
@@ -263,7 +313,7 @@ export async function adminCreateFullSetup(req, res) {
       });
 
       /* ==============================
-         5️⃣ CREATE DIRECTORY
+         5ï¸âƒ£ CREATE DIRECTORY
       ============================== */
       let directorySlug = slugify(directory.name, {
         lower: true,
@@ -299,7 +349,7 @@ export async function adminCreateFullSetup(req, res) {
       });
 
       /* ==============================
-         6️⃣ AUDIT LOG
+         6ï¸âƒ£ AUDIT LOG
       ============================== */
       await tx.auditLog.create({
         data: {
