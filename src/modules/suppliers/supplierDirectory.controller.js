@@ -300,8 +300,28 @@ export const createDirectory = async (req, res) => {
 
     res.status(201).json(normalizeGalleryFields(directory));
   } catch (err) {
-    console.error("Create directory error:", err);
-    res.status(500).json({ error: "Failed to create directory" });
+    console.error("Create directory error:", {
+      code: err?.code,
+      message: err?.message,
+      meta: err?.meta,
+    });
+
+    // Slugs are unique; return a form-level error instead of hiding this
+    // common conflict behind a generic 500 response.
+    if (err?.code === "P2002") {
+      return res.status(409).json({
+        error: "That directory URL is already in use. Change the Slug field and try again.",
+        code: "DIRECTORY_SLUG_TAKEN",
+      });
+    }
+
+    // In local development include the underlying Prisma message so schema or
+    // data issues can be diagnosed from the form response. Keep production
+    // responses generic to avoid exposing database details.
+    const error = process.env.NODE_ENV === "production"
+      ? "Failed to create directory"
+      : `Failed to create directory: ${err?.message || "Unknown server error"}`;
+    return res.status(500).json({ error });
   }
 };
 
@@ -786,6 +806,7 @@ export const getSuppliers = async (req, res) => {
       category,
       industryId,
       featured,
+      ranking,
       page = "1",
       limit = "15",
       sort = "alphabetical",
@@ -800,30 +821,50 @@ export const getSuppliers = async (req, res) => {
       industryIds = await getAllDescendantIndustryIds(Number(industryId));
     }
 
+    const filters = [];
+    const companyFilters = [];
+
+    if (name) {
+      filters.push({ name: { contains: name, mode: "insensitive" } });
+    }
+
+    if (location) {
+      companyFilters.push({ location: { contains: location, mode: "insensitive" } });
+    }
+
+    if (industryIds) {
+      companyFilters.push({ industryId: { in: industryIds } });
+    }
+
+    const rankingPlans = {
+      basic: "basic",
+      professional: "professional",
+      enterprise: "enterprise",
+    };
+    if (rankingPlans[ranking]) {
+      companyFilters.push({
+        subscriptionPlan: { equals: rankingPlans[ranking], mode: "insensitive" },
+      });
+    }
+
+    if (companyFilters.length > 0) {
+      filters.push({ Company: { is: { AND: companyFilters } } });
+    }
+
+    if (category) {
+      filters.push({
+        OR: [
+          { name: { contains: category, mode: "insensitive" } },
+          { description: { contains: category, mode: "insensitive" } },
+          { productSupplies: { array_contains: [category] } },
+        ],
+      });
+    }
+
     const where = {
       status: "APPROVED",
-      ...(name && {
-        name: { contains: name },
-      }),
-      ...(location && {
-        Company: {
-          location: { contains: location },
-        },
-      }),
-      ...(category && {
-        OR: [
-          { name: { contains: category } },
-          { description: { contains: category } },
-        ],
-      }),
-      ...(industryIds && {
-        Company: {
-          industryId: { in: industryIds },
-        },
-      }),
-      ...(featured === "true" && {
-        isFeatured: true,
-      }),
+      ...(filters.length > 0 ? { AND: filters } : {}),
+      ...(featured === "true" ? { isFeatured: true } : {}),
     };
 
     const orderBy =
@@ -856,7 +897,10 @@ export const getSuppliers = async (req, res) => {
     ]);
 
     // Normalize gallery fields for each supplier
-    const normalizedSuppliers = suppliers.map(supplier => normalizeGalleryFields(supplier));
+    const normalizedSuppliers = suppliers.map((supplier) => ({
+      ...normalizeGalleryFields(supplier),
+      location: supplier.Company?.location ?? "",
+    }));
 
     res.json({
       data: normalizedSuppliers,
