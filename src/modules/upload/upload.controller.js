@@ -85,8 +85,7 @@ export const uploadImage = [
 // ----------------------------
 // ✅ NEW: Document Upload (PDF, Word, Excel, etc.)
 // ----------------------------
-export const uploadDocument = [
-  multer({
+const documentUpload = multer({
     storage,
     limits: {
       fileSize: 10 * 1024 * 1024, // 10MB
@@ -108,8 +107,17 @@ export const uploadDocument = [
         cb(new Error("Only document files (PDF, Word, Excel, PowerPoint) are allowed."));
       }
     },
-  }).single("document"), // ✅ Changed field name to "document"
+  }).single("document");
 
+export const uploadDocument = [
+  (req, res, next) => {
+    documentUpload(req, res, (error) => {
+      if (error) {
+        return res.status(400).json({ error: error.message || "Invalid document upload" });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
       if (!req.file) {

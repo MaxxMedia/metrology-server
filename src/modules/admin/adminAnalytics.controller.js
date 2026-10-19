@@ -55,6 +55,23 @@ function formatRoleLabel(role) {
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
+function formatStatusBreakdown(rows) {
+  return (Array.isArray(rows) ? rows : [])
+    .filter((row) => row && typeof row === "object")
+    .map((row) => {
+      const status = typeof row.status === "string" && row.status.trim()
+        ? row.status.trim()
+        : "Unknown";
+      const count = Number(row.count ?? row._count?.status ?? 0);
+
+      return {
+        name: status,
+        key: status === "Unknown" ? "unknown" : status.toLowerCase(),
+        value: Number.isFinite(count) ? count : 0,
+      };
+    });
+}
+
 export async function getAdminAnalytics(req, res) {
   try {
     const months = getLast6Months();
@@ -226,26 +243,10 @@ export async function getAdminAnalytics(req, res) {
         value: row.count !== undefined ? Number(row.count) : row._count?.role ?? 0,
       })),
       subscriptionPlans: subscriptionPlans,
-      directoryStatus: (directoryStatus || []).map((row) => ({
-        name: row.status ? String(row.status) : "Unknown",
-        key: row.status ? String(row.status).toLowerCase() : "unknown",
-        value: row.count !== undefined ? Number(row.count) : row._count?.status ?? 0,
-      })),
-      postStatus: (postStatus || []).map((row) => ({
-        name: row.status ? String(row.status) : "Unknown",
-        key: row.status ? String(row.status).toLowerCase() : "unknown",
-        value: row.count !== undefined ? Number(row.count) : row._count?.status ?? 0,
-      })),
-      paymentStatus: (paymentStatus || []).map((row) => ({
-        name: row.status ? String(row.status) : "Unknown",
-        key: row.status ? String(row.status).toLowerCase() : "unknown",
-        value: row.count !== undefined ? Number(row.count) : row._count?.status ?? 0,
-      })),
-      applicationStatus: (applicationStatus || []).map((row) => ({
-        name: row.status ? String(row.status) : "Unknown",
-        key: row.status ? String(row.status).toLowerCase() : "unknown",
-        value: row.count !== undefined ? Number(row.count) : row._count?.status ?? 0,
-      })),
+      directoryStatus: formatStatusBreakdown(directoryStatus),
+      postStatus: formatStatusBreakdown(postStatus),
+      paymentStatus: formatStatusBreakdown(paymentStatus),
+      applicationStatus: formatStatusBreakdown(applicationStatus),
       revenueByMonth: buildMonthlyRevenue(months, purchasesInRange),
       newUsersByMonth: buildMonthlyCount(months, usersInRange),
       growthByMonth: growthChart,
