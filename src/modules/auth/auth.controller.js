@@ -10,7 +10,9 @@ import { getUserPermissionKeys } from "../../shared/lib/permissions.js" // ✅ N
 const resend = new Resend(process.env.RESEND_API_KEY)
 const MAIL_FROM = process.env.MAIL_FROM
 
-const JWT_SECRET = process.env.JWT_SECRET || "changeme"
+// Read the same live secret as requireAuth. This keeps login signing and
+// request verification aligned if environment initialization order changes.
+const getJwtSecret = () => process.env.JWT_SECRET || "changeme"
 const SALT_ROUNDS = 12
 
 /* ================= PASSWORD VALIDATION ================= */
@@ -238,7 +240,7 @@ export const login = async (req, res) => {
         companyId: user.companyId,
         permissions, // ✅ baked into the token for fast client-side checks only
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: "7d" }
     )
 
