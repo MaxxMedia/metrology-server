@@ -29,6 +29,13 @@ export async function getRecruiterDashboard(req, res) {
       },
     })
 
+    const shortlistedCount = await prisma.jobApplication.count({
+      where: {
+        status: "shortlisted",
+        Job: { postedById: recruiterId },
+      },
+    })
+
     // Directories
     const directories = await prisma.supplierDirectory.findMany({
       where: {
@@ -68,6 +75,7 @@ const articles = await prisma.post.findMany({
     res.json({
       jobsCount: jobs.length,
       applicationsCount,
+      shortlistedCount,
       directoriesCount: directories.length,
       recentJobs: jobs.slice(0, 5),
       directories,
