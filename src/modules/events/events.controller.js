@@ -1,8 +1,6 @@
 // backend/controllers/eventsController.js
-import { PrismaClient } from "@prisma/client"
+import prisma from "../../shared/lib/prisma.js"
 import slugify from "slugify"
-
-const prisma = new PrismaClient()
 
 /**
  * Helper: accept a highlights/otherImages/videoGallery array whether it
