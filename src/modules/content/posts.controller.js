@@ -99,16 +99,15 @@ export const getAllPosts = async (req, res) => {
 
     where.AND = where.AND.filter((c) => Object.keys(c).length);
 
-    const [data, total] = await Promise.all([
-      prisma.post.findMany({
-        where,
-        include: postInclude,
-        orderBy: { publishedAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.post.count({ where }),
-    ]);
+    // Run these sequentially so each request uses at most one pool connection.
+    const data = await prisma.post.findMany({
+      where,
+      include: postInclude,
+      orderBy: { publishedAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    const total = await prisma.post.count({ where });
 
     res.json({
       data,

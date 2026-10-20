@@ -1,8 +1,7 @@
 import express from "express"
-import { PrismaClient } from "@prisma/client"
+import prisma from "../../shared/lib/prisma.js"
 
 const router = express.Router()
-const prisma = new PrismaClient()
 
 router.get("/event/:slug.ics", async (req, res) => {
   const { slug } = req.params
