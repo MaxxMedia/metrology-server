@@ -4,6 +4,7 @@ import { getCompanyPackageDetails } from "../../shared/lib/leadHelpers.js";
 const VALID_STATUSES = ["NEW", "IN_PROGRESS", "QUALIFIED", "CLOSED"];
 const VALID_PLANS = ["free", "basic", "professional", "enterprise"];
 
+/** Retrieves requesting user data for this workflow. */
 async function getRequestingUser(userId) {
     return prisma.user.findUnique({
         where: { id: userId },
@@ -25,6 +26,7 @@ async function buildPackageDetailsMap(companyIds) {
     return new Map(entries);
 }
 
+/** Transforms lead data into the form required by this workflow. */
 function enrichLead(lead, packageMap) {
     const details = lead.companyId ? packageMap.get(lead.companyId) : null;
 

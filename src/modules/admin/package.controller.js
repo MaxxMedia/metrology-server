@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 import {
     SUBSCRIPTION_PLANS,

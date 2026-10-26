@@ -1,6 +1,8 @@
+/** Implements HTTP request handlers for marketing operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 import { resolveLeadUserInfo } from "../../shared/lib/leadHelpers.js";
 
+/** Creates or submits the contact data for this workflow. */
 export const createContact = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, website, message } = req.body;
@@ -67,6 +69,7 @@ export const createContact = async (req, res) => {
   }
 };
 
+/** Retrieves all contacts data for this workflow. */
 export const getAllContacts = async (req, res) => {
   try {
     const contacts = await prisma.contactMessage.findMany({
@@ -113,6 +116,7 @@ export const getAllContacts = async (req, res) => {
   }
 };
 
+/** Retrieves contact by id data for this workflow. */
 export const getContactById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -141,6 +145,7 @@ export const getContactById = async (req, res) => {
   }
 };
 
+/** Updates the contact status state for this workflow. */
 export const updateContactStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -185,6 +190,7 @@ export const updateContactStatus = async (req, res) => {
   }
 };
 
+/** Removes or disables the contact record through this workflow. */
 export const deleteContact = async (req, res) => {
   try {
     const { id } = req.params;

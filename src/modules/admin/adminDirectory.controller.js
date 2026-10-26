@@ -1,4 +1,5 @@
-﻿// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\controllers\adminDirectoryController.js
+/** Handles admin directory review, approval, rejection, and editing requests. */
+// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\controllers\adminDirectoryController.js
 
 import prisma from "../../shared/lib/prisma.js"
 import bcrypt from "bcrypt";
@@ -19,6 +20,7 @@ const submittedByInclude = {
   },
 }
 
+/** Shapes a directory record and its relations for the admin response. */
 function mapDirectory(directory) {
   if (!directory) return directory
   const { User_SupplierDirectory_submittedByIdToUser, ...rest } = directory
@@ -28,6 +30,7 @@ function mapDirectory(directory) {
   }
 }
 
+/** Lists directory submissions awaiting administrator review. */
 export async function getPendingDirectories(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" })
@@ -44,6 +47,7 @@ export async function getPendingDirectories(req, res) {
   res.json(directories.map(mapDirectory))
 }
 
+/** Loads a directory submission and its review details. */
 export async function getDirectoryForReview(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" })
@@ -63,6 +67,7 @@ export async function getDirectoryForReview(req, res) {
   res.json(mapDirectory(directory))
 }
 
+/** Approves a submitted directory and records its moderation outcome. */
 export async function approveDirectory(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" })
@@ -92,6 +97,7 @@ export async function approveDirectory(req, res) {
   res.json({ message: "Directory approved", directory })
 }
 
+/** Rejects a submitted directory and records the rejection reason. */
 export async function rejectDirectory(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" })
@@ -116,6 +122,7 @@ export async function rejectDirectory(req, res) {
   res.json({ message: "Directory rejected" })
 }
 
+/** Updates a directory record through the administrator workflow. */
 export async function adminUpdateDirectory(req, res) {
   const directoryId = Number(req.params.id)
   if (!Number.isInteger(directoryId) || directoryId <= 0) {
@@ -150,6 +157,7 @@ export async function adminUpdateDirectory(req, res) {
   }
 }
 
+/** Deletes a directory record through the administrator workflow. */
 export async function adminDeleteDirectory(req, res) {
   const directoryId = Number(req.params.id)
   if (!Number.isInteger(directoryId) || directoryId <= 0) {
@@ -166,6 +174,7 @@ export async function adminDeleteDirectory(req, res) {
     return res.status(500).json({ error: "Failed to delete directory" })
   }
 }
+/** Creates a directory record through the administrator workflow. */
 export async function adminCreateDirectory(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" });
@@ -225,6 +234,7 @@ async function generateUniqueUsername(email) {
   return username
 }
 
+/** Creates a directory and its related setup records as one admin workflow. */
 export async function adminCreateFullSetup(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" });

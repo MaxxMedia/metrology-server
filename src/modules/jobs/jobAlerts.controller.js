@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for jobs operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 
+/** Checks the required candidate condition and rejects requests that do not satisfy it. */
 function requireCandidate(req, res) {
   if (req.user.role !== "candidate") {
     res.status(403).json({ error: "Only candidates can manage job alerts" });
@@ -8,6 +10,7 @@ function requireCandidate(req, res) {
   return true;
 }
 
+/** Builds database filters from a saved job alert for matching jobs. */
 function buildJobWhereFromAlert(alert) {
   const where = { isActive: true };
   const and = [];
@@ -41,6 +44,7 @@ function buildJobWhereFromAlert(alert) {
   return where;
 }
 
+/** Retrieves my job alerts data for this workflow. */
 export async function getMyJobAlerts(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -66,6 +70,7 @@ export async function getMyJobAlerts(req, res) {
   }
 }
 
+/** Creates or submits the job alert data for this workflow. */
 export async function createJobAlert(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -96,6 +101,7 @@ export async function createJobAlert(req, res) {
   }
 }
 
+/** Updates the job alert state for this workflow. */
 export async function updateJobAlert(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -135,6 +141,7 @@ export async function updateJobAlert(req, res) {
   }
 }
 
+/** Removes or disables the job alert record through this workflow. */
 export async function deleteJobAlert(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -157,6 +164,7 @@ export async function deleteJobAlert(req, res) {
   }
 }
 
+/** Finds jobs matching the alert criteria and its notification rules. */
 export async function getAlertMatches(req, res) {
   try {
     if (!requireCandidate(req, res)) return;

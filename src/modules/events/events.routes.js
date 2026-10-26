@@ -1,3 +1,4 @@
+/** Defines Express routes for events endpoints and connects them to their handlers. */
 // backend/routes/events.js
 import express from "express"
 import {

@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 // src/controllers/activityController.js
 //
 // Read-only endpoints over AdminActivity, for the sub-admin tracking

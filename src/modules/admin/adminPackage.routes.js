@@ -1,3 +1,4 @@
+/** Defines Express routes for admin endpoints and connects them to their handlers. */
 // src/routes/adminPackageRoutes.js
 // (updated — only the middleware chain per route changed; controllers untouched)
 console.log("🔵 adminPackageRoutes.js loaded!");

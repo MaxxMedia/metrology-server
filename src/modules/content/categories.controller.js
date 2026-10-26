@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for content operations. */
 import prisma from "../../shared/lib/prisma.js";
 
+/** Validates that a supplied parent ID refers to an allowed parent record. */
 async function assertValidParentId(parentId) {
   if (parentId === undefined || parentId === null || parentId === "") {
     return null;
@@ -41,6 +43,7 @@ const categoryCountInclude = {
   },
 };
 
+/** Retrieves categories data for this workflow. */
 export const getCategories = async (req, res) => {
   try {
     const parentsOnly =
@@ -66,6 +69,7 @@ export const getCategories = async (req, res) => {
   }
 };
 
+/** Creates or submits the category data for this workflow. */
 export const createCategory = async (req, res) => {
   try {
     const { name, slug } = req.body;
@@ -97,6 +101,7 @@ export const createCategory = async (req, res) => {
   }
 };
 
+/** Updates the category state for this workflow. */
 export const updateCategory = async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -153,6 +158,7 @@ export const updateCategory = async (req, res) => {
   }
 };
 
+/** Removes or disables the category record through this workflow. */
 export const deleteCategory = async (req, res) => {
   try {
     const id = Number(req.params.id);

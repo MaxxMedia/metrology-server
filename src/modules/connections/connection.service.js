@@ -1,5 +1,7 @@
+/** Implements reusable business operations for connections. */
 import prisma from "../../shared/lib/prisma.js";
 
+/** Creates or submits the connection request data for this workflow. */
 export const sendConnectionRequest = async ({
   senderId,
   receiverId,
@@ -67,6 +69,7 @@ export const sendConnectionRequest = async ({
   return request;
 };
 
+/** Coordinates the accept connection request behavior used by this module. */
 export const acceptConnectionRequest = async ({
   requestId,
   receiverId,
@@ -123,6 +126,7 @@ export const acceptConnectionRequest = async ({
 };
 
 
+/** Rejects the  connection request request and records its resulting state. */
 export const rejectConnectionRequest = async ({
   requestId,
   receiverId,
@@ -158,6 +162,7 @@ export const rejectConnectionRequest = async ({
   return updatedRequest;
 };
 
+/** Cancels the  connection request request and updates its state. */
 export const cancelConnectionRequest = async ({
   requestId,
   senderId,
@@ -193,6 +198,7 @@ export const cancelConnectionRequest = async ({
   return updatedRequest;
 };
 
+/** Retrieves my connections data for this workflow. */
 export const getMyConnections = async (userId) => {
   const connections = await prisma.userConnection.findMany({
     where: { userId },
@@ -215,6 +221,7 @@ export const getMyConnections = async (userId) => {
   return connections.map((item) => item.connection);
 };
 
+/** Removes or disables the connection record through this workflow. */
 export const removeConnection = async ({
   userId,
   connectionId,
@@ -254,6 +261,7 @@ export const removeConnection = async ({
   return true;
 };
 
+/** Retrieves received requests data for this workflow. */
 export const getReceivedRequests = async (userId) => {
   return await prisma.connectionRequest.findMany({
     where: { receiverId: userId, status: "PENDING" },
@@ -274,6 +282,7 @@ export const getReceivedRequests = async (userId) => {
   });
 };
 
+/** Retrieves sent requests data for this workflow. */
 export const getSentRequests = async (userId) => {
   return await prisma.connectionRequest.findMany({
     where: { senderId: userId, status: "PENDING" },
@@ -294,6 +303,7 @@ export const getSentRequests = async (userId) => {
   });
 };
 
+/** Retrieves connection status data for this workflow. */
 export const getConnectionStatus = async ({
   currentUserId,
   targetUserId,
@@ -355,6 +365,7 @@ export const getConnectionStatus = async ({
   };
 };
 
+/** Retrieves mutual connections data for this workflow. */
 export const getMutualConnections = async ({
   currentUserId,
   targetUserId,
@@ -392,6 +403,7 @@ export const getMutualConnections = async ({
     .map((c) => c.connection);
 };
 
+/** Creates or submits the to company data for this workflow. */
 export const connectToCompany = async ({ userId, companyId }) => {
   if (!companyId) {
     throw new Error("Company not found.");
@@ -418,6 +430,7 @@ export const connectToCompany = async ({ userId, companyId }) => {
   });
 };
 
+/** Coordinates the disconnect from company behavior used by this module. */
 export const disconnectFromCompany = async ({ userId, companyId }) => {
   await prisma.companyFollower.deleteMany({
     where: { userId, companyId },
@@ -425,6 +438,7 @@ export const disconnectFromCompany = async ({ userId, companyId }) => {
   return true;
 };
 
+/** Retrieves company connection status data for this workflow. */
 export const getCompanyConnectionStatus = async ({ userId, companyId }) => {
   const existing = await prisma.companyFollower.findFirst({
     where: { userId, companyId },
@@ -432,6 +446,7 @@ export const getCompanyConnectionStatus = async ({ userId, companyId }) => {
   return { connected: Boolean(existing) };
 };
 
+/** Retrieves my company connections data for this workflow. */
 export const getMyCompanyConnections = async (userId) => {
   const follows = await prisma.companyFollower.findMany({
     where: { userId },
@@ -453,6 +468,7 @@ export const getMyCompanyConnections = async (userId) => {
   return follows.map((f) => f.Company).filter(Boolean);
 };
 
+/** Retrieves suggested connections data for this workflow. */
 export const getSuggestedConnections = async (userId) => {
   const connections = await prisma.userConnection.findMany({
     where: { userId },

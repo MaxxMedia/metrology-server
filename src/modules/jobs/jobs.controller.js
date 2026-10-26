@@ -227,6 +227,7 @@ export async function createJob(req, res) {
   }
 }
 
+/** Calculates the recruiter's current job and internship posting allowance. */
 export async function getPostingEligibility(req, res) {
   try {
     if (req.user.role !== "recruiter") {
@@ -385,6 +386,7 @@ export async function getJobBySlug(req, res) {
 }
 }
 
+/** Retrieves jobs by recruiter data for this workflow. */
 export async function getJobsByRecruiter(req, res) {
   try {
     const { username } = req.params
@@ -416,6 +418,7 @@ export async function getJobsByRecruiter(req, res) {
   }
 }
 
+/** Retrieves my recruiter jobs data for this workflow. */
 export async function getMyRecruiterJobs(req, res) {
   try {
     if (req.user.role !== "recruiter") {
@@ -464,6 +467,7 @@ res.json(jobs);
   }
 }
 
+/** Retrieves job by id data for this workflow. */
 export async function getJobById(req, res) {
   try {
     if (req.user.role !== "recruiter") {
@@ -488,6 +492,7 @@ export async function getJobById(req, res) {
   }
 }
 
+/** Updates the job state for this workflow. */
 export async function updateJob(req, res) {
   try {
     if (req.user.role !== "recruiter") {
@@ -922,6 +927,7 @@ export async function incrementJobView(req, res) {
 }
 
 
+/** Retrieves apply status data for this workflow. */
 export async function getApplyStatus(req, res) {
   try {
     if (req.user.role !== "candidate") {

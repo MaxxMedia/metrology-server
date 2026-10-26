@@ -1,3 +1,4 @@
+/** Provides shared resend email utility functions. */
 // C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\utils\resendEmail.js
 
 import { Resend } from "resend"
@@ -8,6 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || process.env.MAIL_FROM || "no-reply@fitnessfest.in"
 const FROM_NAME = "Tooling Trends"
 
+/** Creates or submits the recruiter email data for this workflow. */
 export async function sendRecruiterEmail(email, username, password) {
   try {
     const result = await resend.emails.send({

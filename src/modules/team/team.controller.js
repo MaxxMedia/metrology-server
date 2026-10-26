@@ -1,7 +1,9 @@
+/** Implements HTTP request handlers for team operations. */
 // controllers/teamController.js
 import { prisma } from "../../shared/lib/prisma.js";
 import { assertCanAddTeamMember, getTeamMemberEligibility } from "../../shared/lib/packageContentLimits.js";
 
+/** Creates or submits the to join company data for this workflow. */
 export const requestToJoinCompany = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -96,6 +98,7 @@ export const requestToJoinCompany = async (req, res) => {
   }
 };
 
+/** Retrieves my team membership data for this workflow. */
 export const getMyTeamMembership = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -154,6 +157,7 @@ export const getMyTeamMembership = async (req, res) => {
   }
 };
 
+/** Retrieves pending requests data for this workflow. */
 export const getPendingRequests = async (req, res) => {
   try {
     const recruiterId = req.user.id;
@@ -291,6 +295,7 @@ export const getPendingRequests = async (req, res) => {
   }
 };
 
+/** Approves the  team member request and records its resulting state. */
 export const approveTeamMember = async (req, res) => {
   try {
     const recruiterId = req.user.id;
@@ -411,6 +416,7 @@ export const approveTeamMember = async (req, res) => {
   }
 };
 
+/** Rejects the  team member request and records its resulting state. */
 export const rejectTeamMember = async (req, res) => {
   try {
     const recruiterId = req.user.id;
@@ -499,6 +505,7 @@ export const rejectTeamMember = async (req, res) => {
   }
 };
 
+/** Creates or submits the team member data for this workflow. */
 export const addTeamMember = async (req, res) => {
   try {
     const recruiterId = req.user.id;
@@ -701,6 +708,7 @@ export const addTeamMember = async (req, res) => {
   }
 };
 
+/** Updates the team member state for this workflow. */
 export const updateTeamMember = async (req, res) => {
   try {
     const recruiterId = req.user.id;
@@ -821,6 +829,7 @@ export const updateTeamMember = async (req, res) => {
   }
 };
 
+/** Removes or disables the team member record through this workflow. */
 export const removeTeamMember = async (req, res) => {
   try {
     const recruiterId = req.user.id;
@@ -956,6 +965,7 @@ export const removeTeamMember = async (req, res) => {
   }
 };
 
+/** Retrieves candidates data for this workflow. */
 export const searchCandidates = async (req, res) => {
   try {
     const { q, limit = 20, offset = 0 } = req.query;
@@ -1065,6 +1075,7 @@ export const searchCandidates = async (req, res) => {
   }
 };
 
+/** Retrieves team member details data for this workflow. */
 export const getTeamMemberDetails = async (req, res) => {
   try {
     const memberId = Number(req.params.id);
@@ -1137,6 +1148,7 @@ export const getTeamMemberDetails = async (req, res) => {
   }
 };
 
+/** Retrieves company team members data for this workflow. */
 export const getCompanyTeamMembers = async (req, res) => {
   try {
     const recruiterId = req.user.id;

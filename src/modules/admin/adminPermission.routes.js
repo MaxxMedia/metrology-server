@@ -1,3 +1,4 @@
+/** Defines Express routes for admin endpoints and connects them to their handlers. */
 // src/routes/adminPermissionRoutes.js
 import express from "express";
 import { requireAuth } from "../../shared/middleware/auth.js";

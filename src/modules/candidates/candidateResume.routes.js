@@ -1,3 +1,4 @@
+/** Defines Express routes for candidates endpoints and connects them to their handlers. */
 import express from "express";
 import { requireAuth } from "../../shared/middleware/auth.js";
 import { upload } from "../upload/upload.controller.js";

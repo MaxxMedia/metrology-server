@@ -1,3 +1,4 @@
+/** Defines Express routes for magazines endpoints and connects them to their handlers. */
     import express from "express";
     import {
       createMagazine,

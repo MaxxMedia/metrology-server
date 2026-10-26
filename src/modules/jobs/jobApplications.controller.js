@@ -1,7 +1,9 @@
+/** Implements HTTP request handlers for jobs operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 import { uploadResumeToCloudinary } from "../upload/upload.controller.js";
 
 
+/** Creates a candidate application after validating the job and applicant state. */
 export async function applyJob(req, res) {
   try {
     if (req.user.role !== "candidate") {
@@ -172,6 +174,7 @@ export async function getApplicantsByJob(req, res) {
   }
 }
 
+/** Loads a job application and its related records by ID. */
 export async function getApplicationById(req, res) {
   try {
     if (req.user.role !== "recruiter") {

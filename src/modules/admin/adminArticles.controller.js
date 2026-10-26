@@ -1,3 +1,4 @@
+/** Handles admin article review and management requests. */
 import prisma from "../../shared/lib/prisma.js"
 import { getArticlePostingEligibility } from "../../shared/lib/packageContentLimits.js"
 // ✅ FIX: recruiter articles are tagged with real topic slugs

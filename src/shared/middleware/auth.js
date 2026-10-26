@@ -1,3 +1,4 @@
+/** Provides shared auth request middleware. */
 import jwt from "jsonwebtoken"
 import { prisma } from "../lib/prisma.js"
 
@@ -73,6 +74,7 @@ export async function requireAuth(req, res, next) {
   }
 }
 
+/** Checks the required admin condition and rejects requests that do not satisfy it. */
 export function requireAdmin(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ error: "Not authenticated" })

@@ -1,3 +1,4 @@
+/** Centralizes shared newsletter emails rules and data helpers for backend features. */
 // lib/newsletterEmail.js
 
 export const newsletterHtml = (campaign) => {

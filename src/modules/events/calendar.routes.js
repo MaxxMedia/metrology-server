@@ -1,3 +1,4 @@
+/** Defines Express routes for events endpoints and connects them to their handlers. */
 import express from "express"
 import prisma from "../../shared/lib/prisma.js"
 

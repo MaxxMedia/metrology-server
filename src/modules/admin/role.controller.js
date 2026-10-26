@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 // src/controllers/roleController.js
 //
 // All routes here are mounted behind requireAuth + requireSuperAdmin
@@ -8,6 +9,7 @@ import { prisma } from "../../shared/lib/prisma.js";
 import { ALL_PERMISSION_KEYS } from "../../shared/lib/permissions.js";
 import { logActivity } from "../../shared/lib/activityLogger.js";
 
+/** Coordinates the slugify behavior used by this module. */
 function slugify(name) {
     return name
         .toLowerCase()
@@ -16,6 +18,7 @@ function slugify(name) {
         .replace(/^_+|_+$/g, "");
 }
 
+/** Filters permission input against the supported permission keys. */
 function validatePermissionKeys(permissions) {
     if (!Array.isArray(permissions)) {
         return "permissions must be an array of permission keys";
@@ -40,6 +43,7 @@ const ROLE_WITH_COUNTS_SELECT = {
     _count: { select: { users: true, rolePermissions: true } },
 };
 
+/** Shapes role data for consistent API responses. */
 function formatRole(role) {
     if (!role) return role;
     const { _count, ...rest } = role;

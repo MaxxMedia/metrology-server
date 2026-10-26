@@ -1,3 +1,4 @@
+/** Centralizes plan-based quotas and validations for supplier media, directory listings, team members, articles, and jobs. */
 // lib/packageContentLimits.js - FULL COMPLETE VERSION
 
 import { prisma } from "./prisma.js";
@@ -254,37 +255,44 @@ export const PLAN_MACHINERY_LIST = {
   },
 };
 
+/** Returns the manufacturing-capabilities allowance for the selected plan, falling back to the free-plan rules. */
 export function getManufacturingCapabilitiesConfig(plan) {
   return plan in PLAN_MANUFACTURING_CAPABILITIES
     ? PLAN_MANUFACTURING_CAPABILITIES[plan]
     : PLAN_MANUFACTURING_CAPABILITIES.free;
 }
 
+/** Returns the machinery-list allowance for the selected plan, falling back to the free-plan rules. */
 export function getMachineryListConfig(plan) {
   return plan in PLAN_MACHINERY_LIST
     ? PLAN_MACHINERY_LIST[plan]
     : PLAN_MACHINERY_LIST.free;
 }
 
+/** Checks that the selected plan enables manufacturing capabilities and includes image uploads. */
 export function canUploadManufacturingImages(plan) {
   const config = getManufacturingCapabilitiesConfig(plan);
   return config.enabled && config.hasImages;
 }
 
+/** Checks that the selected plan enables manufacturing capabilities and includes video uploads. */
 export function canUploadManufacturingVideos(plan) {
   const config = getManufacturingCapabilitiesConfig(plan);
   return config.enabled && config.hasVideos;
 }
 
+/** Checks whether the selected plan permits machinery-list images. */
 export function canUploadMachineryImages(plan) {
   const config = getMachineryListConfig(plan);
   return config.enabled && config.hasImages;
 }
 
+/** Returns the display label for the manufacturing-capabilities allowance on the selected plan. */
 export function getManufacturingCapabilitiesLabel(plan) {
   return getManufacturingCapabilitiesConfig(plan).label;
 }
 
+/** Returns the display label for the machinery-list allowance on the selected plan. */
 export function getMachineryListLabel(plan) {
   return getMachineryListConfig(plan).label;
 }
@@ -324,16 +332,19 @@ export const PLAN_RESUME_DOWNLOAD_LIMITS = {
   enterprise: null,
 };
 
+/** Returns the start of the current calendar year for annual content quota calculations. */
 function getYearStart() {
   const now = new Date();
   return new Date(now.getFullYear(), 0, 1);
 }
 
+/** Calculates the start of the active quota window used by the requested period. */
 function getWindowStart(windowDays) {
   const now = new Date();
   return new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000);
 }
 
+/** Transforms product supplies data into the form required by this workflow. */
 export function normalizeProductSupplies(productSupplies) {
   if (!productSupplies) return [];
   if (typeof productSupplies === "string") {
@@ -347,6 +358,7 @@ export function normalizeProductSupplies(productSupplies) {
   return productSupplies;
 }
 
+/** Counts  product listings records using the rules required by this workflow. */
 export function countProductListings(productSupplies) {
   const items = normalizeProductSupplies(productSupplies);
   return items.filter((item) => {
@@ -358,12 +370,14 @@ export function countProductListings(productSupplies) {
   }).length;
 }
 
+/** Counts  words records using the rules required by this workflow. */
 export function countWords(text) {
   if (!text) return 0;
   if (typeof text !== "string") return 0;
   return text.trim().split(/\s+/).filter(word => word.length > 0).length;
 }
 
+/** Counts the company directory records used to enforce package limits. */
 export async function getCompanyDirectoryCount(companyId, prismaClient = prisma) {
   return prismaClient.supplierDirectory.count({
     where: {
@@ -378,6 +392,7 @@ export async function getCompanyDirectoryCount(companyId, prismaClient = prisma)
   });
 }
 
+/** Counts active team memberships when checking the company team allowance. */
 export async function getActiveTeamMemberCount(companyId, prismaClient = prisma) {
   return prismaClient.companyTeamMember.count({
     where: {
@@ -387,6 +402,7 @@ export async function getActiveTeamMemberCount(companyId, prismaClient = prisma)
   });
 }
 
+/** Calculates whether the recruiter can post another article in the current quota period. */
 export async function getArticlePostingEligibility(companyId) {
   if (!companyId) {
     return {
@@ -562,6 +578,7 @@ export async function getTeamMemberEligibility(companyId) {
   };
 }
 
+/** Rejects team additions when the company's package member limit is reached. */
 export async function assertCanAddTeamMember(companyId) {
   const eligibility = await getTeamMemberEligibility(companyId);
 
@@ -609,6 +626,7 @@ export async function getCompanyProfileEligibility(companyId) {
   };
 }
 
+/** Rejects article creation when the recruiter's package quota is exhausted. */
 export async function assertCanCreateArticle(companyId) {
   const eligibility = await getArticlePostingEligibility(companyId);
 
@@ -623,6 +641,7 @@ export async function assertCanCreateArticle(companyId) {
   return eligibility;
 }
 
+/** Checks the current listing count against the supplier package limit. */
 export async function assertProductListingCount(companyId, requestedCount) {
   const eligibility = await getProductListingEligibility(companyId);
 
@@ -741,6 +760,7 @@ export async function assertCompanyProfileLimits(companyId, data) {
   return eligibility;
 }
 
+/** Restricts product-listing results to the quantity allowed by the active package. */
 export function applyProductListingLimit(productSupplies, limit) {
   const items = normalizeProductSupplies(productSupplies);
   if (limit === null) {
@@ -809,6 +829,7 @@ export function sanitizeSupplierDirectoryMedia({ plan, coverImages, socialLinks 
   };
 }
 
+/** Validates supplier media against package limits and sanitizes accepted values. */
 export async function assertAndSanitizeSupplierDirectoryMedia(companyId, { coverImages, socialLinks }) {
   const activeSubscription = await getActiveSubscription(companyId, prisma);
   return sanitizeSupplierDirectoryMedia({
@@ -973,6 +994,7 @@ export async function getHomepageFeaturedEligibility(companyId) {
   };
 }
 
+/** Checks package eligibility before accepting a homepage-feature request. */
 export async function assertCanRequestHomepageFeature(companyId) {
   const eligibility = await getHomepageFeaturedEligibility(companyId);
 
@@ -1001,6 +1023,7 @@ export async function getActiveJobPostingCount(companyId, prismaClient = prisma)
   });
 }
 
+/** Counts applications for the company to enforce resume and application access limits. */
 export async function getTotalApplicationCount(companyId, prismaClient = prisma) {
   return prismaClient.jobApplication.count({
     where: {
@@ -1009,6 +1032,7 @@ export async function getTotalApplicationCount(companyId, prismaClient = prisma)
   });
 }
 
+/** Calculates job posting eligibility from the company plan, active jobs, and any eligible recruitment-package slot. */
 export async function getJobPostingEligibility(companyId) {
   if (!companyId) {
     return {
@@ -1059,6 +1083,7 @@ export async function getJobPostingEligibility(companyId) {
   };
 }
 
+/** Enforces the job quota before a recruiter can create another job. */
 export async function assertCanCreateJobPosting(companyId) {
   const eligibility = await getJobPostingEligibility(companyId);
 

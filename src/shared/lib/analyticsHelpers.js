@@ -1,3 +1,5 @@
+/** Centralizes shared analytics helpers rules and data helpers for backend features. */
+/** Builds the ordered six-month window used to label analytics reports. */
 export function getLast6Months() {
   const months = [];
   const now = new Date();
@@ -13,6 +15,7 @@ export function getLast6Months() {
   return months;
 }
 
+/** Groups timestamped records into monthly counts for dashboard charts. */
 export function buildMonthlyCount(months, records, dateKey = "createdAt") {
   const map = Object.fromEntries(months.map((m) => [m.key, 0]));
   for (const record of records) {
@@ -23,11 +26,13 @@ export function buildMonthlyCount(months, records, dateKey = "createdAt") {
   return months.map((m) => ({ month: m.label, value: map[m.key] }));
 }
 
+/** Converts a stored status value to a display label for analytics. */
 export function formatStatusLabel(status) {
   if (!status) return "Unknown";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+/** Converts aggregated metrics into chart-ready slices. */
 export function toChartSlices(rows, statusKey = "status") {
   return rows.map((row) => ({
     name: formatStatusLabel(row[statusKey]),

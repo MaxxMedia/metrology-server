@@ -1,3 +1,4 @@
+/** Provides shared upload industry talk request middleware. */
 import multer from "multer";
 
 const storage = multer.memoryStorage();

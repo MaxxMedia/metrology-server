@@ -1,3 +1,4 @@
+/** Centralizes shared package pricing rules and data helpers for backend features. */
 // ⚠️ Adjust this import path to match where your prisma client actually lives
 // relative to this file (e.g. "../lib/prisma.js" if this file sits in src/utils/).
 import { prisma } from "./prisma.js";
@@ -74,6 +75,7 @@ async function getDbPackage(id) {
   }
 }
 
+/** Coordinates the resolve package behavior used by this module. */
 export async function resolvePackage(packageType, packageId) {
   const type = String(packageType || "").toUpperCase();
 
@@ -144,10 +146,12 @@ export async function resolvePackage(packageType, packageId) {
   return null;
 }
 
+/** Retrieves plan label data for this workflow. */
 export function getPlanLabel(planId) {
   return SUBSCRIPTION_PLANS[planId]?.name ?? planId;
 }
 
+/** Resolves the company's effective plan from its current subscription and purchases. */
 export function getEffectivePlan(company) {
   const plan = company?.subscriptionPlan || "free";
 

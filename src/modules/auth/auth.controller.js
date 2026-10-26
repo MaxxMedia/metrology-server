@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for auth operations. */
 // src/controllers/authController.js
 
 import prisma from "../../shared/lib/prisma.js"
@@ -20,9 +21,11 @@ const SALT_ROUNDS = 12
 const strongPasswordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
 
+/** Creates a one-time code for account verification. */
 const generateOtp = () =>
   Math.floor(100000 + Math.random() * 900000).toString()
 
+/** Hashes a sensitive value before it is stored or compared. */
 const hashValue = (value) =>
   crypto.createHash("sha256").update(value).digest("hex")
 

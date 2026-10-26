@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for suppliers operations. */
 // controllers/quoteController.js
 import { prisma } from "../../shared/lib/prisma.js";
 import { resolveLeadUserInfo } from "../../shared/lib/leadHelpers.js";

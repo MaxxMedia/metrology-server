@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for industry talks operations. */
 // controllers/industryTalkController.js
 
 import * as industryTalkService from "./industryTalk.service.js";
@@ -22,6 +23,7 @@ function cleanText(str, stripTags = true) {
     .trim();
 }
 
+/** Transforms talk response data into the form required by this workflow. */
 function formatTalkResponse(talk) {
   if (!talk) return talk;
   if (Array.isArray(talk)) {

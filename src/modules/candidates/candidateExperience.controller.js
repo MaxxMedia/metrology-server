@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for candidates operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 
+/** Retrieves my experience data for this workflow. */
 export async function getMyExperience(req, res) {
   try {
     const experiences = await prisma.candidateExperience.findMany({
@@ -21,6 +23,7 @@ export async function getMyExperience(req, res) {
   }
 }
 
+/** Creates or submits the experience data for this workflow. */
 export async function addExperience(req, res) {
   try {
     const {

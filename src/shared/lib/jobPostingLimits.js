@@ -1,3 +1,4 @@
+/** Centralizes plan-based eligibility and quota enforcement for job and internship postings. */
 // lib/jobPostingLimits.js
 
 import { prisma } from "./prisma.js";
@@ -176,14 +177,17 @@ async function computeEligibility(companyId, postType) {
   };
 }
 
+/** Calculates job posting eligibility from the company plan, active jobs, and any eligible recruitment-package slot. */
 export async function getJobPostingEligibility(companyId) {
   return computeEligibility(companyId, "job");
 }
 
+/** Calculates internship eligibility separately; recruitment-package bonus slots do not apply to internships. */
 export async function getInternshipPostingEligibility(companyId) {
   return computeEligibility(companyId, "internship");
 }
 
+/** Enforces the job quota before a recruiter can create another job. */
 export async function assertCanPostJob(companyId) {
   const eligibility = await getJobPostingEligibility(companyId);
 
@@ -198,6 +202,7 @@ export async function assertCanPostJob(companyId) {
   return eligibility;
 }
 
+/** Enforces the internship quota before a recruiter can create another internship. */
 export async function assertCanPostInternship(companyId) {
   const eligibility = await getInternshipPostingEligibility(companyId);
 

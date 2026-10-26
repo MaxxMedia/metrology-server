@@ -1,3 +1,4 @@
+/** Defines Express routes for webinars endpoints and connects them to their handlers. */
 import express from "express";
 import { requireAuth } from "../../shared/middleware/auth.js";
 import { requirePermission } from "../../shared/middleware/permissions.js";

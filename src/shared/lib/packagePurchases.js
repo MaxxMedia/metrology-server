@@ -1,3 +1,4 @@
+/** Centralizes shared package purchases rules and data helpers for backend features. */
 // lib/packagePurchases.js — FULL FILE
 
 import { prisma } from "./prisma.js";
@@ -16,10 +17,12 @@ const PLAN_RANK = {
   enterprise: 3,
 };
 
+/** Returns the priority rank for the supplied value. */
 function rankOf(planId) {
   return PLAN_RANK[planId] ?? 0;
 }
 
+/** Removes duplicate company purchase records before selecting active entitlements. */
 export function dedupeCompanyPurchases(purchases) {
   let seenFree = false;
 
@@ -32,6 +35,7 @@ export function dedupeCompanyPurchases(purchases) {
   });
 }
 
+/** Selects the company's currently active subscription purchase. */
 export async function getActiveSubscription(companyId, prismaClient = prisma) {
   if (!companyId) {
     return { plan: "free", expiresAt: null, purchase: null };
@@ -86,6 +90,7 @@ export async function getActiveSubscription(companyId, prismaClient = prisma) {
   return { plan, expiresAt, purchase: null };
 }
 
+/** Synchronizes the company subscription fields with its valid package purchase. */
 export async function syncCompanySubscription(companyId, prismaClient = prisma) {
   if (!companyId) return null;
 
@@ -102,6 +107,7 @@ export async function syncCompanySubscription(companyId, prismaClient = prisma) 
   return active;
 }
 
+/** Selects the currently active recruitment package for the company. */
 export async function getActiveRecruitmentPackage(companyId, prismaClient = prisma) {
   if (!companyId) return null;
 
@@ -124,6 +130,7 @@ export async function getActiveRecruitmentPackage(companyId, prismaClient = pris
   });
 }
 
+/** Builds the subscription summary returned to the client. */
 export async function buildSubscriptionDisplay(company, companyId, prismaClient = prisma) {
   const activeSubscription = await getActiveSubscription(companyId, prismaClient);
   const plan = activeSubscription.plan;

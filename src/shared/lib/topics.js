@@ -1,3 +1,4 @@
+/** Centralizes shared topics rules and data helpers for backend features. */
 // Whitelist of topic slugs that recruiters are permitted to publish articles into.
 // ⚠️  Keep in sync with ACTIVE_TOPIC_SLUGS in metrology-frontend/lib/topic.ts
 export const ARTICLE_TOPIC_SLUGS = [

@@ -1,3 +1,4 @@
+/** Defines Express routes for industry talks endpoints and connects them to their handlers. */
 // routes/industryTalks.js
 
 import express from "express";

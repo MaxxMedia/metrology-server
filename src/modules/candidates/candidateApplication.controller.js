@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for candidates operations. */
 import { prisma } from "../../shared/lib/prisma.js"
 
+/** Checks whether a candidate has the required profile details to apply for a job. */
 export async function getApplicationReadiness(req, res) {
     try {
         if (req.user.role !== "candidate") {

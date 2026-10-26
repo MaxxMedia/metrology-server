@@ -1,3 +1,4 @@
+/** Creates and configures the Express application and mounts shared middleware and API routes. */
 import "./loadEnv.js"; // MUST be the very first import — loads .env
 import express from "express";
 import cors from "cors";

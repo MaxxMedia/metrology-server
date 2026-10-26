@@ -1,3 +1,4 @@
+/** Defines Express routes for companies endpoints and connects them to their handlers. */
 // routes/companyTeam.js
 import express from "express";
 import { prisma } from "../../shared/lib/prisma.js";

@@ -1,8 +1,10 @@
+/** Implements HTTP request handlers for admin operations. */
 import prisma from "../../shared/lib/prisma.js";
 import slugify from "slugify";
 
 const ADMIN_ROLES = ["admin", "super_admin"];
 
+/** Rejects the request unless the current user has administrator access. */
 function assertAdmin(req, res) {
   const role = req.user?.role?.toLowerCase();
   if (!role || !ADMIN_ROLES.includes(role)) {
@@ -12,6 +14,7 @@ function assertAdmin(req, res) {
   return true;
 }
 
+/** Validates that a supplied parent ID refers to an allowed parent record. */
 async function assertValidParentId(parentId, industryId = null) {
   if (parentId === undefined || parentId === null || parentId === "") {
     return null;
