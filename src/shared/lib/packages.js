@@ -1,3 +1,4 @@
+/** Centralizes shared packages rules and data helpers for backend features. */
 // src/lib/packages.js - Complete copy of your data
 
 export const SUBSCRIPTION_PLANS = [
@@ -108,6 +109,7 @@ export const RECRUITMENT_PACKAGES = [
     { id: "single-job", name: "Single Job (Monthly · 30 Days)", price: 2000, durationDays: 30 },
 ];
 
+/** Transforms inr data into the form required by this workflow. */
 export function formatInr(amount) {
     return new Intl.NumberFormat("en-IN", {
         style: "currency",

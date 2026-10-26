@@ -1,3 +1,4 @@
+/** Defines Express routes for suppliers endpoints and connects them to their handlers. */
 // routes/quoteRoutes.js
 import express from "express";
 import { requireAuth } from "../../shared/middleware/auth.js";

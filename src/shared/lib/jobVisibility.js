@@ -1,6 +1,8 @@
+/** Centralizes shared job visibility rules and data helpers for backend features. */
 import { prisma } from "./prisma.js";
 import { getJobPostingEligibility } from "./jobPostingLimits.js";
 
+/** Returns the job visibility cap associated with the company's active package. */
 export async function getCompanyVisibleJobLimit(companyId) {
   const eligibility = await getJobPostingEligibility(companyId);
 
@@ -11,6 +13,7 @@ export async function getCompanyVisibleJobLimit(companyId) {
   return eligibility.effectiveLimit;
 }
 
+/** Applies the company job visibility cap when preparing public job results. */
 export async function enforceCompanyJobVisibility(companyId) {
   if (!companyId) return;
 
@@ -53,6 +56,7 @@ export async function enforceCompanyJobVisibility(companyId) {
   }
 }
 
+/** Filters jobs according to their company package visibility allowance. */
 export async function filterJobsForPackageVisibility(jobs) {
   if (!Array.isArray(jobs) || jobs.length === 0) {
     return [];
@@ -88,6 +92,7 @@ export async function filterJobsForPackageVisibility(jobs) {
   );
 }
 
+/** Checks whether a job is within its company's package visibility allowance. */
 export async function isJobPackageVisible(job) {
   if (!job || job.isExternal) {
     return true;
@@ -115,6 +120,7 @@ export async function isJobPackageVisible(job) {
   return companyJobs.some((entry) => entry.id === job.id);
 }
 
+/** Applies package visibility limits across the returned company job groups. */
 export async function enforceAllCompanyJobVisibility() {
   const companies = await prisma.job.findMany({
     where: {

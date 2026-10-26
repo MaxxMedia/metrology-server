@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 // src/controllers/subAdminController.js
 //
 // All routes here are mounted behind requireAuth + requireSuperAdmin
@@ -35,6 +36,7 @@ const SAFE_SELECT = {
     roleTemplate: { select: { id: true, name: true, slug: true, isActive: true } },
 };
 
+/** Filters permission input against the supported permission keys. */
 function validatePermissionKeys(permissions) {
     if (!Array.isArray(permissions)) {
         return "permissions must be an array of permission keys";
@@ -46,6 +48,7 @@ function validatePermissionKeys(permissions) {
     return null;
 }
 
+/** Shapes sub-admin data for consistent API responses. */
 function formatSubAdmin(user) {
     if (!user) return user;
     const { roleTemplate, ...rest } = user;
@@ -63,6 +66,7 @@ function normalizeRoleId(rawRoleId) {
     return { roleId: asNumber, error: null };
 }
 
+/** Ensures the referenced role exists before the operation continues. */
 async function assertRoleExists(roleId) {
     if (roleId === undefined || roleId === null) return null;
     const role = await prisma.role.findUnique({ where: { id: roleId } });

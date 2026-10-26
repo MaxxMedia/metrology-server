@@ -1,3 +1,4 @@
+/** Starts the Express API server, connects the database with retries, and handles graceful startup. */
 import "./loadEnv.js"; // MUST be first — loads .env before other modules read process.env
 import app from "./app.js";
 import { prisma } from "./shared/lib/prisma.js";
@@ -6,6 +7,7 @@ import { ensureRolesSeeded } from "./shared/lib/roles.js";
 
 const PORT = process.env.PORT || 5000;
 
+/** Attempts the database connection up to the configured retry count, waiting between failures before giving up. */
 async function connectWithRetry(retries = 5, delayMs = 3000) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
@@ -20,6 +22,7 @@ async function connectWithRetry(retries = 5, delayMs = 3000) {
   }
 }
 
+/** Connects to the database, seeds permissions and roles, and starts listening only after startup prerequisites succeed. */
 async function start() {
   try {
     await connectWithRetry();

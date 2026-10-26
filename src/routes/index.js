@@ -56,6 +56,7 @@ import adminPermissionRoutes from "../modules/admin/adminPermission.routes.js";
 import industryTalkRoutes from "../modules/industryTalks/industryTalk.routes.js";
 import { webinarPublicRoutes, webinarAdminRoutes } from "../modules/webinars/webinar.routes.js";
 
+/** Mounts all feature route modules on the shared Express router. */
 export function mountRoutes(app) {
   // Contact was historically mounted early (before health) — keep that order.
   app.use("/api/contact", contactRoutes);

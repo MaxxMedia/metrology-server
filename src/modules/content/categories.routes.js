@@ -1,3 +1,4 @@
+/** Defines Express routes for content endpoints and connects them to their handlers. */
 import express from "express";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "./categories.controller.js";
 

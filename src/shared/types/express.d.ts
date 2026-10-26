@@ -1,3 +1,4 @@
+/** Implements the shared\types\express.d server module. */
 import "express"
 
 declare global {

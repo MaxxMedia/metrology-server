@@ -1,3 +1,4 @@
+/** Validates request data for industry talks operations. */
 import { body, validationResult } from "express-validator";
 
 // Parses a JSON-stringified array (as sent via multipart/form-data)

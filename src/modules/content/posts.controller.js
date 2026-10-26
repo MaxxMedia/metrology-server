@@ -248,6 +248,7 @@ export const getPostBySlug = async (req, res) => {
   }
 };
 
+/** Retrieves recruiter article by slug data for this workflow. */
 export const getRecruiterArticleBySlug = async (req, res) => {
   try {
     const { slug } = req.params
@@ -529,6 +530,7 @@ export const deletePost = async (req, res) => {
   }
 };
 
+/** Updates the post view state for this workflow. */
 export const incrementPostView = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -554,6 +556,7 @@ export const incrementPostView = async (req, res) => {
   }
 };
 
+/** Updates the post share state for this workflow. */
 export const incrementPostShare = async (req, res) => {
   try {
     const { slug } = req.params;

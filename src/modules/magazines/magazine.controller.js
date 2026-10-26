@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for magazines operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 import slugify from "slugify";
 import { Resend } from "resend";
@@ -454,6 +455,7 @@ export const getSingleCoverStory = async (req, res) => {
   }
 };
 
+/** Retrieves all magazines admin data for this workflow. */
 export const getAllMagazinesAdmin = async (req, res) => {
   try {
     const magazines = await prisma.magazine.findMany({

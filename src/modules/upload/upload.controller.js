@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for upload operations. */
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -311,6 +312,7 @@ export async function uploadBufferToCloudinary(file, { folder, resourceType = "i
   });
 }
 
+/** Uploads the  event image to cloudinary asset and returns its stored reference. */
 export async function uploadEventImageToCloudinary(file) {
   return uploadBufferToCloudinary(file, {
     folder: "mould-tech/events/images",
@@ -318,6 +320,7 @@ export async function uploadEventImageToCloudinary(file) {
   });
 }
 
+/** Uploads the  event document to cloudinary asset and returns its stored reference. */
 export async function uploadEventDocumentToCloudinary(file) {
   return uploadBufferToCloudinary(file, {
     folder: "mould-tech/events/documents",
@@ -336,6 +339,7 @@ export async function uploadIndustryTalkImageToCloudinary(file) {
   });
 }
 
+/** Uploads the  industry talk video to cloudinary asset and returns its stored reference. */
 export async function uploadIndustryTalkVideoToCloudinary(file) {
   return uploadBufferToCloudinary(file, {
     folder: "mould-tech/industry-talks/videos",
@@ -343,6 +347,7 @@ export async function uploadIndustryTalkVideoToCloudinary(file) {
   });
 }
 
+/** Uploads the  industry talk document to cloudinary asset and returns its stored reference. */
 export async function uploadIndustryTalkDocumentToCloudinary(file) {
   return uploadBufferToCloudinary(file, {
     folder: "mould-tech/industry-talks/documents",
@@ -398,6 +403,7 @@ export const uploadEventFiles = multer({
 
 
 
+/** Uploads the  industry talk asset and returns its stored reference. */
 export const uploadIndustryTalk = async (req, res) => {
   try {
     const response = {};

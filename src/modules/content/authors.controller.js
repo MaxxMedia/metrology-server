@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for content operations. */
 import prisma from "../../shared/lib/prisma.js";
 
+/** Retrieves authors data for this workflow. */
 export const getAuthors = async (req, res) => {
   try {
     const authors = await prisma.author.findMany();
@@ -29,6 +31,7 @@ export const createAuthor = async (req, res) => {
   }
 };
 
+/** Updates the author state for this workflow. */
 export const updateAuthor = async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,6 +53,7 @@ export const updateAuthor = async (req, res) => {
   }
 };
 
+/** Removes or disables the author record through this workflow. */
 export const deleteAuthor = async (req, res) => {
   try {
     const { id } = req.params;

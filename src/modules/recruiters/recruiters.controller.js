@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for recruiters operations. */
 import { prisma } from "../../shared/lib/prisma.js"
 import slugify from "slugify"
 import { getPlanLabel } from "../../shared/lib/packagePricing.js"
@@ -117,6 +118,7 @@ export async function getMyRecruiterProfile(req, res) {
   }
 }
 
+/** Retrieves company profile eligibility controller data for this workflow. */
 export async function getCompanyProfileEligibilityController(req, res) {
   try {
     const recruiter = await prisma.user.findUnique({
@@ -146,6 +148,7 @@ export async function getCompanyProfileEligibilityController(req, res) {
 const JOB_LISTING_DAYS = 30
 const EXPIRY_WARN_DAYS = 7
 
+/** Transforms recent activity data into the form required by this workflow. */
 async function buildRecentActivity(recruiterId, applicationsCount) {
   const activities = []
 
@@ -281,6 +284,7 @@ async function buildRecentActivity(recruiterId, applicationsCount) {
     .slice(0, 10)
 }
 
+/** Retrieves recruiter dashboard data for this workflow. */
 export async function getRecruiterDashboard(req, res) {
   try {
     if (req.user.role !== "recruiter") {
@@ -650,6 +654,7 @@ export async function updateRecruiterProfile(req, res) {
   }
 }
 
+/** Retrieves recruiters by company data for this workflow. */
 export async function getRecruitersByCompany(req, res) {
   try {
     const { companyId } = req.query
@@ -679,6 +684,7 @@ export async function getRecruitersByCompany(req, res) {
 }
 
 
+/** Retrieves all recruiters data for this workflow. */
 export async function getAllRecruiters(req, res) {
   try {
     if (req.user.role !== "admin") {

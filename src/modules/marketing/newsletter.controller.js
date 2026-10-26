@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for marketing operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 
 import { resend } from "../../shared/lib/resend.js";
@@ -92,6 +93,7 @@ export async function subscribeNewsletter(req, res) {
   }
 }
 
+/** Removes or disables the newsletter record through this workflow. */
 export async function unsubscribeNewsletter(req, res) {
   try {
     const { email } = req.body;
@@ -256,6 +258,7 @@ export async function getSubscribers(req, res) {
   }
 }
 
+/** Retrieves subscriber data for this workflow. */
 export async function getSubscriber(req, res) {
   try {
     const id = Number(req.params.id);
@@ -288,6 +291,7 @@ export async function getSubscriber(req, res) {
   }
 }
 
+/** Creates or submits the subscriber data for this workflow. */
 export async function createSubscriber(req, res) {
   try {
     const {
@@ -360,6 +364,7 @@ export async function createSubscriber(req, res) {
 }
 }
 
+/** Coordinates the import subscribers behavior used by this module. */
 export async function importSubscribers(req, res) {
   return res.status(501).json({
     success: false,
@@ -367,6 +372,7 @@ export async function importSubscribers(req, res) {
   });
 }
 
+/** Coordinates the export subscribers behavior used by this module. */
 export async function exportSubscribers(req, res) {
   try {
     const subscribers = await prisma.newsletterSubscriber.findMany({
@@ -391,6 +397,7 @@ export async function exportSubscribers(req, res) {
   }
 }
 
+/** Updates the subscriber state for this workflow. */
 export async function updateSubscriber(req, res) {
   try {
     const id = Number(req.params.id);
@@ -414,6 +421,7 @@ export async function updateSubscriber(req, res) {
   }
 }
 
+/** Removes or disables the subscriber record through this workflow. */
 export async function deleteSubscriber(req, res) {
   try {
     const id = Number(req.params.id);
@@ -472,6 +480,7 @@ export async function getCampaigns(req, res) {
   }
 }
 
+/** Retrieves campaign data for this workflow. */
 export async function getCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -512,6 +521,7 @@ export async function getCampaign(req, res) {
   }
 }
 
+/** Creates or submits the campaign data for this workflow. */
 export async function createCampaign(req, res) {
   try {
     const {
@@ -594,6 +604,7 @@ export async function createCampaign(req, res) {
   }
 }
 
+/** Updates the campaign state for this workflow. */
 export async function updateCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -677,6 +688,7 @@ export async function updateCampaign(req, res) {
   }
 }
 
+/** Updates the campaign state for this workflow. */
 export async function scheduleCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -713,6 +725,7 @@ export async function scheduleCampaign(req, res) {
   }
 } 
 
+/** Cancels the  campaign request and updates its state. */
 export async function cancelCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -740,6 +753,7 @@ export async function cancelCampaign(req, res) {
   }
 } 
 
+/** Creates or submits the test campaign data for this workflow. */
 export async function sendTestCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -791,6 +805,7 @@ export async function sendTestCampaign(req, res) {
   }
 }  
 
+/** Retrieves campaign recipients data for this workflow. */
 export async function getCampaignRecipients(req, res) {
   try {
     const id = Number(req.params.id);
@@ -822,6 +837,7 @@ export async function getCampaignRecipients(req, res) {
   }
 }
 
+/** Retrieves campaign analytics data for this workflow. */
 export async function getCampaignAnalytics(req, res) {
   try {
     const id = Number(req.params.id);
@@ -863,6 +879,7 @@ export async function getCampaignAnalytics(req, res) {
   }
 }
 
+/** Removes or disables the campaign record through this workflow. */
 export async function deleteCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -906,6 +923,7 @@ export async function deleteCampaign(req, res) {
   }
 }
 
+/** Creates or submits the campaign data for this workflow. */
 export async function sendCampaign(req, res) {
   try {
     const id = Number(req.params.id);
@@ -1286,6 +1304,7 @@ export async function getTemplates(req, res) {
   }
 }
 
+/** Retrieves template data for this workflow. */
 export async function getTemplate(req, res) {
   try {
     const id = Number(req.params.id);
@@ -1324,6 +1343,7 @@ export async function getTemplate(req, res) {
   }
 }
 
+/** Creates or submits the template data for this workflow. */
 export async function createTemplate(req, res) {
   try {
     const { name, subject, content } = req.body;
@@ -1386,6 +1406,7 @@ export async function createTemplate(req, res) {
   }
 }
 
+/** Updates the template state for this workflow. */
 export async function updateTemplate(req, res) {
   try {
     const id = Number(req.params.id);
@@ -1431,6 +1452,7 @@ export async function updateTemplate(req, res) {
   }
 }
 
+/** Coordinates the duplicate template behavior used by this module. */
 export async function duplicateTemplate(req, res) {
   try {
     const id = Number(req.params.id);
@@ -1470,6 +1492,7 @@ export async function duplicateTemplate(req, res) {
   }
 }  
 
+/** Coordinates the preview template behavior used by this module. */
 export async function previewTemplate(req, res) {
   try {
     const id = Number(req.params.id);
@@ -1502,6 +1525,7 @@ export async function previewTemplate(req, res) {
   }
 }
 
+/** Removes or disables the template record through this workflow. */
 export async function deleteTemplate(req, res) {
   try {
     const id = Number(req.params.id);

@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for companies operations. */
 import {
     connectToCompany as connectToCompanyService,
     disconnectFromCompany as disconnectFromCompanyService,
@@ -5,6 +6,7 @@ import {
     getMyCompanyConnections as getMyCompanyConnectionsService,
 } from "../connections/connection.service.js";
 
+/** Checks the required candidate condition and rejects requests that do not satisfy it. */
 function requireCandidate(req, res) {
     if (req.user.role !== "candidate") {
         res.status(403).json({
@@ -16,6 +18,7 @@ function requireCandidate(req, res) {
     return true;
 }
 
+/** Creates or submits the to company data for this workflow. */
 export const connectToCompany = async (req, res) => {
     try {
         if (!requireCandidate(req, res)) return;
@@ -37,6 +40,7 @@ export const connectToCompany = async (req, res) => {
     }
 };
 
+/** Coordinates the disconnect from company behavior used by this module. */
 export const disconnectFromCompany = async (req, res) => {
     try {
         if (!requireCandidate(req, res)) return;
@@ -57,6 +61,7 @@ export const disconnectFromCompany = async (req, res) => {
     }
 };
 
+/** Retrieves connection status data for this workflow. */
 export const getConnectionStatus = async (req, res) => {
     try {
         if (req.user.role !== "candidate") {
@@ -76,6 +81,7 @@ export const getConnectionStatus = async (req, res) => {
     }
 };
 
+/** Retrieves my company connections data for this workflow. */
 export const getMyCompanyConnections = async (req, res) => {
     try {
         if (!requireCandidate(req, res)) return;

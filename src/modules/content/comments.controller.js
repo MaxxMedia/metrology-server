@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for content operations. */
 import prisma from "../../shared/lib/prisma.js";
 
 // GET /api/posts/:postId/comments

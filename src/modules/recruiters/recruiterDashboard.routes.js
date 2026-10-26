@@ -1,3 +1,4 @@
+/** Defines Express routes for recruiters endpoints and connects them to their handlers. */
 import express from "express"
 import { requireAuth } from "../../shared/middleware/auth.js"
 import { getRecruiterDashboard } from "./recruiterDashboard.controller.js"

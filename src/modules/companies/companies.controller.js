@@ -390,6 +390,7 @@ export async function adminCreateCompany(req, res) {
   }
 }
 
+/** Retrieves company team data for this workflow. */
 export const getCompanyTeam = async (req, res) => {
   try {
     const { slug } = req.params;

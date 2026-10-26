@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for connections operations. */
 import * as connectionService from "./connection.service.js";
 
+/** Creates or submits the connection request data for this workflow. */
 export const sendConnectionRequest = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -31,6 +33,7 @@ export const sendConnectionRequest = async (req, res) => {
   }
 };
 
+/** Coordinates the accept connection request behavior used by this module. */
 export const acceptConnectionRequest = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -55,6 +58,7 @@ export const acceptConnectionRequest = async (req, res) => {
   }
 };
 
+/** Rejects the  connection request request and records its resulting state. */
 export const rejectConnectionRequest = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -79,6 +83,7 @@ export const rejectConnectionRequest = async (req, res) => {
   }
 };
 
+/** Cancels the  connection request request and updates its state. */
 export const cancelConnectionRequest = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -103,6 +108,7 @@ export const cancelConnectionRequest = async (req, res) => {
   }
 };
 
+/** Retrieves my connections data for this workflow. */
 export const getMyConnections = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -118,6 +124,7 @@ export const getMyConnections = async (req, res) => {
   }
 };
 
+/** Removes or disables the connection record through this workflow. */
 export const removeConnection = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -138,6 +145,7 @@ export const removeConnection = async (req, res) => {
   }
 };
 
+/** Retrieves received requests data for this workflow. */
 export const getReceivedRequests = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -153,6 +161,7 @@ export const getReceivedRequests = async (req, res) => {
   }
 };
 
+/** Retrieves sent requests data for this workflow. */
 export const getSentRequests = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -168,6 +177,7 @@ export const getSentRequests = async (req, res) => {
   }
 };
 
+/** Retrieves connection status data for this workflow. */
 export const getConnectionStatus = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -188,6 +198,7 @@ export const getConnectionStatus = async (req, res) => {
   }
 };
 
+/** Retrieves mutual connections data for this workflow. */
 export const getMutualConnections = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {
@@ -212,6 +223,7 @@ export const getMutualConnections = async (req, res) => {
   }
 };
 
+/** Retrieves suggested connections data for this workflow. */
 export const getSuggestedConnections = async (req, res) => {
   try {
     if (req.user.role !== "candidate") {

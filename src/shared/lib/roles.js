@@ -1,3 +1,4 @@
+/** Centralizes shared roles rules and data helpers for backend features. */
 // src/lib/roles.js
 import { ALL_PERMISSION_KEYS } from "./permissions.js";
 

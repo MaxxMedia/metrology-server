@@ -1,3 +1,5 @@
+/** Centralizes shared activity logger rules and data helpers for backend features. */
+/** Persists an activity event for later audit and analytics views. */
 export async function logActivity(
     prisma,
     {

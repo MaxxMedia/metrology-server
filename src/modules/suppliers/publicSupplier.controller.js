@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for suppliers operations. */
 import prisma from "../../shared/lib/prisma.js"
 
+/** Retrieves suppliers data for this workflow. */
 export async function getSuppliers(req, res) {
   try {
     const { q } = req.query
@@ -33,6 +35,7 @@ export async function getSuppliers(req, res) {
 }
 
 
+/** Retrieves supplier showroom data for this workflow. */
 export async function getSupplierShowroom(req, res) {
   try {
     const { slug } = req.params
@@ -63,6 +66,7 @@ export async function getSupplierShowroom(req, res) {
   }
 }
 
+/** Retrieves supplier by slug data for this workflow. */
 export async function getSupplierBySlug(req, res) {
   try {
     const { slug } = req.params

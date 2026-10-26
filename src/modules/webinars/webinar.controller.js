@@ -1,3 +1,4 @@
+/** Handles webinar administration, publishing lifecycle, public listings, and related webinar requests. */
 import slugify from "slugify";
 import { prisma } from "../../shared/lib/prisma.js";
 
@@ -5,6 +6,7 @@ const WEBINAR_STATUSES = ["DRAFT", "PENDING", "APPROVED", "PUBLISHED", "REJECTED
 // Approved + published webinars are visible on the public site.
 const PUBLIC_STATUSES = ["PUBLISHED", "APPROVED"];
 
+/** Parses a form field into an array while handling empty or malformed input safely. */
 function parseArrayField(value) {
   if (!value) return [];
   if (Array.isArray(value)) return value;
@@ -16,6 +18,7 @@ function parseArrayField(value) {
   }
 }
 
+/** Normalizes webinar resource values into the response shape expected by clients. */
 function shapeResources(resources) {
   return parseArrayField(resources).map((item) => ({
     title: item?.title || "",
@@ -24,6 +27,7 @@ function shapeResources(resources) {
   }));
 }
 
+/** Converts submitted webinar resource values into the format used for persistence. */
 function normalizeResourcesInput(resources) {
   return parseArrayField(resources)
     .filter((item) => item?.title && (item?.fileUrl || item?.url))
@@ -34,6 +38,7 @@ function normalizeResourcesInput(resources) {
     }));
 }
 
+/** Reuses the webinar category when present or creates it before saving webinar records. */
 async function getOrCreateWebinarCategory() {
   const slug = "webinars";
   const existing = await prisma.category.findUnique({ where: { slug } });
@@ -47,6 +52,7 @@ async function getOrCreateWebinarCategory() {
   });
 }
 
+/** Shapes a webinar record and its relations for API responses. */
 function shapeWebinar(webinar) {
   if (!webinar) return webinar;
 
@@ -94,6 +100,7 @@ function shapeWebinar(webinar) {
   };
 }
 
+/** Creates an unused webinar slug by checking existing records and adding a suffix when needed. */
 async function uniqueSlug(title, excludeId) {
   const baseSlug = slugify(title, { lower: true, strict: true }) || "webinar";
   let slug = baseSlug;
@@ -106,6 +113,7 @@ async function uniqueSlug(title, excludeId) {
   }
 }
 
+/** Maps validated request fields into the webinar database record shape. */
 function buildWebinarData(body, { categoryId, slug, status, userId }) {
   return {
     title: body.title?.trim(),
@@ -139,6 +147,7 @@ function buildWebinarData(body, { categoryId, slug, status, userId }) {
   };
 }
 
+/** Normalizes agenda input into ordered webinar agenda items. */
 function normalizeAgenda(agenda) {
   return parseArrayField(agenda)
     .filter((item) => item?.title)
@@ -148,6 +157,7 @@ function normalizeAgenda(agenda) {
     }));
 }
 
+/** Loads a webinar and its related records by ID. */
 async function findWebinarById(id) {
   const webinarId = Number(id);
   if (!Number.isFinite(webinarId)) return null;
@@ -158,6 +168,7 @@ async function findWebinarById(id) {
   });
 }
 
+/** Retrieves admin webinar stats data for this workflow. */
 export async function getAdminWebinarStats(req, res) {
   try {
     const grouped = await prisma.webinar.groupBy({
@@ -180,6 +191,7 @@ export async function getAdminWebinarStats(req, res) {
   }
 }
 
+/** Retrieves admin webinars data for this workflow. */
 export async function listAdminWebinars(req, res) {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -220,6 +232,7 @@ export async function listAdminWebinars(req, res) {
   }
 }
 
+/** Retrieves admin webinar by id data for this workflow. */
 export async function getAdminWebinarById(req, res) {
   try {
     const webinar = await findWebinarById(req.params.id);
@@ -231,6 +244,7 @@ export async function getAdminWebinarById(req, res) {
   }
 }
 
+/** Creates or submits the webinar data for this workflow. */
 export async function createWebinar(req, res) {
   try {
     const { title, speakerName, startDate } = req.body;
@@ -258,6 +272,7 @@ export async function createWebinar(req, res) {
   }
 }
 
+/** Updates the webinar state for this workflow. */
 export async function updateWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -286,6 +301,7 @@ export async function updateWebinar(req, res) {
   }
 }
 
+/** Removes or disables the webinar record through this workflow. */
 export async function deleteWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -299,6 +315,7 @@ export async function deleteWebinar(req, res) {
   }
 }
 
+/** Approves the  webinar request and records its resulting state. */
 export async function approveWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -322,6 +339,7 @@ export async function approveWebinar(req, res) {
   }
 }
 
+/** Rejects the  webinar request and records its resulting state. */
 export async function rejectWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -346,6 +364,7 @@ export async function rejectWebinar(req, res) {
   }
 }
 
+/** Updates the webinar state for this workflow. */
 export async function publishWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -368,6 +387,7 @@ export async function publishWebinar(req, res) {
   }
 }
 
+/** Returns a webinar to draft state so it is not shown publicly. */
 export async function draftWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -389,6 +409,7 @@ export async function draftWebinar(req, res) {
   }
 }
 
+/** Updates the feature webinar state for this workflow. */
 export async function toggleFeatureWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -407,6 +428,7 @@ export async function toggleFeatureWebinar(req, res) {
   }
 }
 
+/** Updates the on demand webinar state for this workflow. */
 export async function toggleOnDemandWebinar(req, res) {
   try {
     const existing = await findWebinarById(req.params.id);
@@ -425,6 +447,7 @@ export async function toggleOnDemandWebinar(req, res) {
   }
 }
 
+/** Retrieves public webinars data for this workflow. */
 export async function listPublicWebinars(req, res) {
   try {
     const rows = await prisma.webinar.findMany({
@@ -440,6 +463,7 @@ export async function listPublicWebinars(req, res) {
   }
 }
 
+/** Retrieves public webinar by slug data for this workflow. */
 export async function getPublicWebinarBySlug(req, res) {
   try {
     const webinar = await prisma.webinar.findFirst({
@@ -464,6 +488,7 @@ export async function getPublicWebinarBySlug(req, res) {
   }
 }
 
+/** Retrieves related webinars data for this workflow. */
 export async function getRelatedWebinars(req, res) {
   try {
     const current = await prisma.webinar.findFirst({

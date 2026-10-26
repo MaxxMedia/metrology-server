@@ -1,3 +1,5 @@
+/** Implements HTTP request handlers for banners operations. */
+/** Uploads a banner image and returns its stored media reference. */
 export const uploadBannerImage = async (req, res) => {
   try {
     if (!req.file || !req.file.path) {

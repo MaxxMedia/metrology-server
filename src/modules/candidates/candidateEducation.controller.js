@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for candidates operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 
 /* GET Education */

@@ -101,6 +101,7 @@ export const createRecruiterArticle = async (req, res) => {
   }
 }
 
+/** Retrieves article posting eligibility handler data for this workflow. */
 export const getArticlePostingEligibilityHandler = async (req, res) => {
   try {
     const user = req.user

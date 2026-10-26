@@ -1,3 +1,4 @@
+/** Defines Express routes for marketing endpoints and connects them to their handlers. */
 import express from "express";
 import { requireAuth, requireAdmin } from "../../shared/middleware/auth.js";
 

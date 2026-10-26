@@ -1,6 +1,8 @@
+/** Implements HTTP request handlers for admin operations. */
 import bcrypt from "bcryptjs";
 import { prisma } from "../../shared/lib/prisma.js";
 
+/** Coordinates the admin create recruiter behavior used by this module. */
 export async function adminCreateRecruiter(req, res) {
   try {
     if (req.user.role?.toLowerCase() !== "admin") {

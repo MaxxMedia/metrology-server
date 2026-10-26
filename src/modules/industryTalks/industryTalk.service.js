@@ -1,8 +1,10 @@
+/** Implements reusable business operations for industry talks. */
 // services/industryTalkService.js
 
 import prisma from "../../shared/lib/prisma.js";
 import slugify from "slugify";
 
+/** Creates or submits the industry talk data for this workflow. */
 export async function createIndustryTalk(data) {
   let slug =
     data.slug ||
@@ -125,6 +127,7 @@ export async function createIndustryTalk(data) {
   });
 }
 
+/** Updates the industry talk state for this workflow. */
 export async function updateIndustryTalk(id, data) {
   const {
     questions,
@@ -216,6 +219,7 @@ export async function updateIndustryTalk(id, data) {
   return updatedTalk;
 }
 
+/** Removes or disables the industry talk record through this workflow. */
 export async function deleteIndustryTalk(id) {
   return prisma.industryTalk.delete({
     where: {
@@ -387,6 +391,7 @@ export const getIndustryTalkBySlug = async (slug) => {
   });
 };
 
+/** Creates or submits the draft data for this workflow. */
 export async function saveDraft(id) {
   return prisma.industryTalk.update({
     where: {
@@ -398,6 +403,7 @@ export async function saveDraft(id) {
   });
 }
 
+/** Updates the industry talk state for this workflow. */
 export async function publishIndustryTalk(id, approvedById) {
   return prisma.industryTalk.update({
     where: {
@@ -411,6 +417,7 @@ export async function publishIndustryTalk(id, approvedById) {
   });
 }
 
+/** Updates the views state for this workflow. */
 export async function incrementViews(id) {
   console.log("📊 Incrementing views for talk ID:", id);
   
@@ -426,6 +433,7 @@ export async function incrementViews(id) {
   });
 }
 
+/** Updates the shares state for this workflow. */
 export async function incrementShares(id) {
   console.log("📊 Incrementing shares for talk ID:", id);
   

@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for payments operations. */
 ﻿// controllers/paymentsController.js - FIXED VERSION
 
 import crypto from "crypto";
@@ -11,6 +12,7 @@ import {
 } from "../../shared/lib/packagePurchases.js";
 const Razorpay = RazorpayPkg.default || RazorpayPkg;
 
+/** Retrieves razorpay data for this workflow. */
 function getRazorpay() {
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -20,12 +22,14 @@ function getRazorpay() {
   return new Razorpay({ key_id: keyId, key_secret: keySecret });
 }
 
+/** Adds a calendar-day interval to a date for subscription expiration calculations. */
 function addDays(date, days) {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
 }
 
+/** Activates the purchased package and applies its subscription period. */
 async function activatePackage(purchase) {
   const now = new Date();
   const startsAt = now;
@@ -53,6 +57,7 @@ async function activatePackage(purchase) {
   return { startsAt, expiresAt };
 }
 
+/** Creates a payment-provider order for the selected package. */
 export async function createPaymentOrder(req, res) {
   try {
     if (!["recruiter", "admin"].includes(req.user.role)) {
@@ -129,6 +134,7 @@ export async function createPaymentOrder(req, res) {
   }
 }
 
+/** Verifies payment-provider data before activating the purchased plan. */
 export async function verifyPayment(req, res) {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
@@ -227,6 +233,7 @@ export async function verifyPayment(req, res) {
     res.status(500).json({ error: "Payment verification failed" });
   }
 }
+/** Activates the free tier without creating a payment order. */
 export async function activateFreePlan(req, res) {
   try {
     if (!["recruiter", "admin"].includes(req.user.role)) {
@@ -401,6 +408,7 @@ export async function activateFreePlan(req, res) {
     });
   }
 }
+/** Retrieves my package info data for this workflow. */
 export async function getMyPackageInfo(req, res) {
   try {
     const user = await prisma.user.findUnique({
@@ -480,6 +488,7 @@ export async function getMyPackageInfo(req, res) {
   }
 }
 
+/** Retrieves admin payment stats data for this workflow. */
 export async function getAdminPaymentStats(req, res) {
   try {
     const [totalRevenue, paidCount, pendingCount, recentPurchases, planBreakdown] =

@@ -562,6 +562,7 @@ export const registerForEvent = async (req, res) => {
   }
 }
 
+/** Retrieves event registrations data for this workflow. */
 export const getEventRegistrations = async (req, res) => {
   try {
     const { id } = req.params

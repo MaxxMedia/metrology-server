@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for candidates operations. */
 import prisma from "../../shared/lib/prisma.js";
 // ✅ ADDED: this was the missing piece — uploadController.js already had
 // uploadResumeToCloudinary() defined, it was just never imported/called
@@ -6,6 +7,7 @@ import prisma from "../../shared/lib/prisma.js";
 // it to Cloudinary and fileUrl was always null/undefined in the DB.
 import { uploadResumeToCloudinary } from "../upload/upload.controller.js";
 
+/** Uploads the  resume asset and returns its stored reference. */
 export const uploadResume = async (req, res) => {
   try {
     if (!req.file) {
@@ -76,6 +78,7 @@ export const uploadResume = async (req, res) => {
   }
 };
 
+/** Retrieves my resume data for this workflow. */
 export const getMyResume = async (req, res) => {
   try {
     const resume = await prisma.candidateResume.findUnique({
@@ -96,6 +99,7 @@ export const getMyResume = async (req, res) => {
   }
 };
 
+/** Removes or disables the resume record through this workflow. */
 export const deleteResume = async (req, res) => {
   try {
     const resume = await prisma.candidateResume.findUnique({
@@ -129,6 +133,7 @@ export const deleteResume = async (req, res) => {
   }
 };
 
+/** Retrieves candidate resume data for this workflow. */
 export const getCandidateResume = async (req, res) => {
   try {
     const resume = await prisma.candidateResume.findUnique({

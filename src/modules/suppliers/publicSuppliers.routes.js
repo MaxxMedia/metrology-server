@@ -1,3 +1,4 @@
+/** Defines Express routes for suppliers endpoints and connects them to their handlers. */
 import express from "express"
 import {
   getSuppliers,

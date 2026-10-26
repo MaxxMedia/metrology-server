@@ -1,3 +1,4 @@
+/** Defines Express routes for companies endpoints and connects them to their handlers. */
 import { Router } from "express"
 import { getCompanyArticles } from "./companyArticles.controller.js"
 

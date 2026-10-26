@@ -1,3 +1,4 @@
+/** Defines Express routes for marketing endpoints and connects them to their handlers. */
 // routes/leadRoutes.js
 import express from "express";
 import {

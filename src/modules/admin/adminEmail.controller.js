@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 // C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\controllers\adminEmailController.js
 
 import { Resend } from "resend"
@@ -7,6 +8,7 @@ import { sendRecruiterEmail } from "../../shared/utils/resendEmail.js"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+/** Generates a temporary password for a newly imported account. */
 function generateRandomPassword(length = 12) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!%"
@@ -17,6 +19,7 @@ function generateRandomPassword(length = 12) {
   return password
 }
 
+/** Sends account setup details to users created by a bulk import. */
 export async function sendBulkImportEmail(req, res) {
   if (req.user.role?.toLowerCase() !== "admin") {
     return res.status(403).json({ error: "Admin only" })

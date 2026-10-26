@@ -1,3 +1,4 @@
+/** Defines Express routes for admin endpoints and connects them to their handlers. */
 ﻿// C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\routes\adminDirectories.js
 
 import express from "express"

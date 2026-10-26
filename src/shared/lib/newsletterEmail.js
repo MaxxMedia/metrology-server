@@ -1,3 +1,5 @@
+/** Centralizes shared newsletter email rules and data helpers for backend features. */
+/** Renders the supplied newsletter content into the email HTML template. */
 export function newsletterHtml(campaign) {
   return `
 <!DOCTYPE html>

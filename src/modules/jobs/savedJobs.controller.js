@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for jobs operations. */
 import { prisma } from "../../shared/lib/prisma.js";
 
+/** Checks the required candidate condition and rejects requests that do not satisfy it. */
 function requireCandidate(req, res) {
   if (req.user.role !== "candidate") {
     res.status(403).json({ error: "Only candidates can save jobs" });
@@ -8,6 +10,7 @@ function requireCandidate(req, res) {
   return true;
 }
 
+/** Retrieves my saved jobs data for this workflow. */
 export async function getMySavedJobs(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -29,6 +32,7 @@ export async function getMySavedJobs(req, res) {
   }
 }
 
+/** Creates or submits the job data for this workflow. */
 export async function saveJob(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -57,6 +61,7 @@ export async function saveJob(req, res) {
   }
 }
 
+/** Removes or disables the job record through this workflow. */
 export async function unsaveJob(req, res) {
   try {
     if (!requireCandidate(req, res)) return;
@@ -88,6 +93,7 @@ export async function unsaveJob(req, res) {
 }
 
 
+/** Retrieves save status data for this workflow. */
 export async function getSaveStatus(req, res) {
   try {
     if (!requireCandidate(req, res)) return;

@@ -1,3 +1,4 @@
+/** Handles admin analytics endpoints and builds monthly, revenue, and status-breakdown metrics. */
 // src/controllers/adminAnalyticsController.js
 
 import {prisma} from "../../shared/lib/prisma.js";  // ✅ FIXED: Correct import path
@@ -15,6 +16,7 @@ function getPlanLabel(planKey) {
   return planMap[planKey] || planKey.charAt(0).toUpperCase() + planKey.slice(1);
 }
 
+/** Builds the ordered six-month window used to label analytics reports. */
 function getLast6Months() {
   const months = [];
   const now = new Date();
@@ -30,6 +32,7 @@ function getLast6Months() {
   return months;
 }
 
+/** Groups timestamped records into monthly counts for dashboard charts. */
 function buildMonthlyCount(months, records, dateKey = "createdAt") {
   const map = Object.fromEntries(months.map((m) => [m.key, 0]));
   for (const record of records) {
@@ -40,6 +43,7 @@ function buildMonthlyCount(months, records, dateKey = "createdAt") {
   return months.map((m) => ({ month: m.label, value: map[m.key] }));
 }
 
+/** Groups payment records into monthly revenue totals for dashboard charts. */
 function buildMonthlyRevenue(months, purchases) {
   const map = Object.fromEntries(months.map((m) => [m.key, 0]));
   for (const purchase of purchases) {
@@ -50,11 +54,13 @@ function buildMonthlyRevenue(months, purchases) {
   return months.map((m) => ({ month: m.label, revenue: map[m.key] }));
 }
 
+/** Converts a stored role value into its display label. */
 function formatRoleLabel(role) {
   if (!role) return "Unknown";
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
+/** Normalizes status-count rows for analytics charts, including fallback count fields. */
 function formatStatusBreakdown(rows) {
   return (Array.isArray(rows) ? rows : [])
     .filter((row) => row && typeof row === "object")
@@ -72,6 +78,7 @@ function formatStatusBreakdown(rows) {
     });
 }
 
+/** Builds the administrator dashboard metrics from aggregated records. */
 export async function getAdminAnalytics(req, res) {
   try {
     const months = getLast6Months();
@@ -97,6 +104,7 @@ export async function getAdminAnalytics(req, res) {
       }
     };
 
+    /** Groups package payments into the status breakdown shown in admin analytics. */
     const getPackagePaymentStatus = async () => {
       try {
         return await prisma.packagePurchase.groupBy({

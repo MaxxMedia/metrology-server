@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 // C:\Users\Dell\OneDrive\Desktop\tooling\newsprk-backend\src\controllers\adminBulkController.js
 
 import prisma from "../../shared/lib/prisma.js"

@@ -133,6 +133,7 @@ export const updateBanner = async (req, res) => {
   }
 };
 
+/** Persists the new banner ordering submitted by the administrator. */
 export const updateBannerOrder = async (req, res) => {
   try {
     const updates = req.body; // [{ id, position }]

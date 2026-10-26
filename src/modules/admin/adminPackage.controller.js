@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for admin operations. */
 // src/controllers/adminPackageController.js
 console.log("🔵 adminPackageController.js loaded!");
 

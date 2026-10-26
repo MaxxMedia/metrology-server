@@ -1,5 +1,7 @@
+/** Implements HTTP request handlers for companies operations. */
 import prisma from "../../shared/lib/prisma.js"
 
+/** Retrieves company articles data for this workflow. */
 export const getCompanyArticles = async (req, res) => {
   try {
     const companyId = Number(req.params.companyId)

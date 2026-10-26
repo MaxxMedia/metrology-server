@@ -1,6 +1,8 @@
+/** Implements HTTP request handlers for recruiters operations. */
 import { prisma } from "../../shared/lib/prisma.js"
 
 
+/** Retrieves recruiter dashboard data for this workflow. */
 export async function getRecruiterDashboard(req, res) {
   try {
     if (req.user.role !== "recruiter") {

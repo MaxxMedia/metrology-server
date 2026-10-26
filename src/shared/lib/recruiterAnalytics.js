@@ -1,3 +1,4 @@
+/** Centralizes shared recruiter analytics rules and data helpers for backend features. */
 import { prisma } from "./prisma.js";
 import {
   buildMonthlyCount,
@@ -6,17 +7,20 @@ import {
   toChartSlices,
 } from "./analyticsHelpers.js";
 
+/** Transforms label data into the form required by this workflow. */
 function truncateLabel(text, max = 24) {
   if (!text) return "Untitled";
   return text.length > max ? `${text.slice(0, max)}…` : text;
 }
 
+/** Builds the database filter that limits article analytics to the recruiter's scope. */
 function recruiterArticleWhere(recruiterId, companyId) {
   const base = { category: { slug: "articles" } };
   if (companyId) return { ...base, companyId };
   return { ...base, createdById: recruiterId };
 }
 
+/** Builds the database filter that limits directory analytics to the recruiter's scope. */
 function recruiterDirectoryWhere(recruiterId, companyId) {
   if (companyId) {
     return {
@@ -26,6 +30,7 @@ function recruiterDirectoryWhere(recruiterId, companyId) {
   return { submittedById: recruiterId };
 }
 
+/** Aggregates recruiter article and directory activity into dashboard metrics. */
 export async function buildRecruiterAnalytics(recruiterId, companyId) {
   const months = getLast6Months();
   const rangeStart = months[0].start;

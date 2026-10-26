@@ -1,3 +1,4 @@
+/** Implements HTTP request handlers for suppliers operations. */
 // controllers/supplierDirectoryController.js
 
 import prisma from "../../shared/lib/prisma.js";
@@ -20,6 +21,7 @@ import {
   countGalleryItems,
 } from "../../shared/lib/galleryUtils.js";
 
+/** Retrieves all descendant industry ids data for this workflow. */
 async function getAllDescendantIndustryIds(parentId) {
   const ids = [parentId];
 
@@ -64,6 +66,7 @@ function truncateGalleryToLimit(data, limit) {
   return data.slice(0, limit);
 }
 
+/** Creates or submits the directory data for this workflow. */
 export const createDirectory = async (req, res) => {
   try {
     const user = req.user;
@@ -325,6 +328,7 @@ export const createDirectory = async (req, res) => {
   }
 };
 
+/** Approves a submitted directory and records its moderation outcome. */
 export const approveDirectory = async (req, res) => {
   try {
     const user = req.user;
@@ -357,6 +361,7 @@ export const approveDirectory = async (req, res) => {
   }
 };
 
+/** Retrieves my directory by id data for this workflow. */
 export const getMyDirectoryById = async (req, res) => {
   try {
     const user = req.user;
@@ -394,6 +399,7 @@ export const getMyDirectoryById = async (req, res) => {
   }
 };
 
+/** Retrieves product listing eligibility handler data for this workflow. */
 export const getProductListingEligibilityHandler = async (req, res) => {
   try {
     const user = req.user;
@@ -409,6 +415,7 @@ export const getProductListingEligibilityHandler = async (req, res) => {
   }
 };
 
+/** Retrieves my directories data for this workflow. */
 export const getMyDirectories = async (req, res) => {
   try {
     const user = req.user;
@@ -784,6 +791,7 @@ export const updateDirectory = async (req, res) => {
   }
 };
 
+/** Retrieves company profile eligibility handler data for this workflow. */
 export const getCompanyProfileEligibilityHandler = async (req, res) => {
   try {
     const user = req.user;
@@ -798,6 +806,7 @@ export const getCompanyProfileEligibilityHandler = async (req, res) => {
   }
 };
 
+/** Retrieves suppliers data for this workflow. */
 export const getSuppliers = async (req, res) => {
   try {
     const {
@@ -915,6 +924,7 @@ export const getSuppliers = async (req, res) => {
   }
 };
 
+/** Retrieves supplier by slug data for this workflow. */
 export const getSupplierBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -973,6 +983,7 @@ export const getSupplierBySlug = async (req, res) => {
   }
 };
 
+/** Retrieves supplier rfq eligibility data for this workflow. */
 export const getSupplierRfqEligibility = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -994,6 +1005,7 @@ export const getSupplierRfqEligibility = async (req, res) => {
   }
 };
 
+/** Retrieves all directories for admin data for this workflow. */
 export const getAllDirectoriesForAdmin = async (req, res) => {
   try {
     const directories = await prisma.supplierDirectory.findMany({
@@ -1032,6 +1044,7 @@ export const getAllDirectoriesForAdmin = async (req, res) => {
   }
 };
 
+/** Coordinates the track directory connection behavior used by this module. */
 export const trackDirectoryConnection = async (req, res) => {
   try {
     const { id } = req.params;

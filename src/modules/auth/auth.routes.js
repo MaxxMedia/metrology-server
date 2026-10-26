@@ -1,3 +1,4 @@
+/** Defines Express routes for auth endpoints and connects them to their handlers. */
 import express from "express"
 import rateLimit from "express-rate-limit"
 import { requireAuth } from "../../shared/middleware/auth.js"

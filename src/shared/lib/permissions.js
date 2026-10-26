@@ -1,3 +1,4 @@
+/** Centralizes shared permissions rules and data helpers for backend features. */
 // src/lib/permissions.js
 //
 // Single source of truth for every permission key in the system.

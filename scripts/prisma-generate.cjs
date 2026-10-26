@@ -1,8 +1,12 @@
+/** Guards Prisma Client generation against Windows engine DLL locks. */
 const { spawnSync } = require("node:child_process");
 
+// Postinstall must remain non-fatal when a running Windows app locks the Prisma engine.
 const isPostinstall = process.argv.includes("--postinstall");
 
+/** Finds Node processes that have the Windows Prisma query-engine DLL loaded. */
 function findPrismaEngineLockHolders() {
+  // The generated query-engine DLL lock is specific to Windows; other platforms need no process scan.
   if (process.platform !== "win32") return [];
 
   const command = String.raw`
@@ -34,6 +38,7 @@ Get-Process -Name node | ForEach-Object {
     });
 }
 
+// Do not attempt to replace Prisma's native engine while a process still has it loaded.
 const lockHolders = findPrismaEngineLockHolders();
 
 if (lockHolders.length) {
@@ -41,6 +46,7 @@ if (lockHolders.length) {
     .map(({ processId, executable }) => `  PID ${processId}: ${executable}`)
     .join("\n");
 
+  // Package installation can continue, but explicit generation should report the lock as a failure.
   if (isPostinstall) {
     console.warn(
       `\nPrisma Client generation was skipped because a running Node process has the Windows Prisma engine loaded:\n${processes}\nStop that app and run "npm run prisma:generate" when you need to regenerate the client.\n`
@@ -54,6 +60,7 @@ if (lockHolders.length) {
   process.exit(1);
 }
 
+// Delegate generation to the local Prisma CLI and preserve its output and exit status.
 const prismaCli = require.resolve("prisma/build/index.js");
 const result = spawnSync(process.execPath, [prismaCli, "generate"], {
   stdio: "inherit",

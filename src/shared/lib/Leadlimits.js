@@ -1,3 +1,4 @@
+/** Centralizes shared leadlimits rules and data helpers for backend features. */
 import { prisma } from "./prisma.js";
 import { getPlanLabel } from "./packagePricing.js";
 import { getActiveSubscription } from "./packagePurchases.js";
@@ -9,16 +10,19 @@ export const PLAN_RFQ_LEAD_LIMITS = {
   enterprise: null,
 };
 
+/** Retrieves month start data for this workflow. */
 function getMonthStart(now = new Date()) {
   return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
+/** Returns the monthly RFQ lead allowance for the supplied package tier. */
 function getPlanLimit(plan) {
   return Object.prototype.hasOwnProperty.call(PLAN_RFQ_LEAD_LIMITS, plan)
     ? PLAN_RFQ_LEAD_LIMITS[plan]
     : PLAN_RFQ_LEAD_LIMITS.free;
 }
 
+/** Calculates the supplier's remaining RFQ lead allowance for the current month. */
 export async function getRfqLeadsEligibility(companyId, recruiterUserId = null, prismaClient = prisma) {
   const activeSubscription = await getActiveSubscription(companyId, prismaClient);
   const plan = activeSubscription.plan || "free";
@@ -73,6 +77,7 @@ export async function getRfqLeadsEligibility(companyId, recruiterUserId = null, 
   };
 }
 
+/** Calculates RFQ lead access using the specified supplier's active package. */
 export async function getRfqLeadsEligibilityForSupplier(supplierId, prismaClient = prisma) {
   const directory = await prismaClient.supplierDirectory.findUnique({
     where: { id: supplierId },
